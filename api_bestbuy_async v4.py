@@ -185,7 +185,7 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
 if __name__ == '__main__':
     # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=True))
+    loop.run_until_complete(main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=False))
     # loop.close()
 
 """
