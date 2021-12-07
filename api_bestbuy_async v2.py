@@ -7,7 +7,7 @@ import json
 async def main():
     url = f"https://api.bestbuy.com/v1/products"
     payload = {
-                "apiKey": "AwGV1zCqy6FDoQHNUoNcfjqA",
+                "apiKey": "",
                 "pageSize": 100,
                 "format": "json",
                 "show": "all",

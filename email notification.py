@@ -10,7 +10,7 @@ from email.message import EmailMessage
 import config_bestbuy
 
 
-distribution = ['choiac01@gmail.com', '7605861983@messaging.sprintpcs.com']
+distribution = []
 email_user = config_bestbuy.email_user
 sender = config_bestbuy.email_sender
 user = config_bestbuy.user
