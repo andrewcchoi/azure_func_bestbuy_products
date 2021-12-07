@@ -106,7 +106,7 @@ async def insert_db(io, engine, db_cols, container, page):
         df.to_sql(name='products', con=cnx, if_exists='append', index=False)
 
 
-async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=False):
+async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=False, test=False):
     # * main entrypoint for app
 
     # * initialize configurations
@@ -129,8 +129,11 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
     )
 
     # * filepath to save files
-    # path = config_bestbuy.path
-    path = config_bestbuy.path_test
+    if test:
+        path = config_bestbuy.path_test
+    else:
+        path = config_bestbuy.path
+    
     foldername = f'best_buy_{datename}\\{folders[folder_index]}'
     folderpath = os.path.join(path, foldername)
 
@@ -244,7 +247,7 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
 if __name__ == '__main__':
     # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=False))
+    loop.run_until_complete(main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=False, test=False))
 
 """
 https://api.bestbuy.com/v1/products?apiKey=AwGV1zCqy6FDoQHNUoNcfjqA&pageSize=100&format=json&show=all&page=1
