@@ -164,10 +164,10 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
             # * retreive last itemupdatedate
             last_update_stmt = 'SELECT MAX(itemUpdateDate) FROM products'
             df_itemUpdateDate = pd.read_sql(sql=last_update_stmt, con=cnx)
-            last_update_date = df_itemUpdateDate.iloc[0, 0]
+            last_update_date = df_itemUpdateDate.iloc[0, 0].strftime('%Y-%m-%dT%H:%M:%S')
 
         except Exception as e:
-            last_update_date = '2020-01-01'
+            last_update_date = '2020-01-01T00:00:00'
     print(f'{last_update_date=}')
 
     # * best buy api connections
@@ -217,24 +217,25 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
     key = config_bestbuy.bestbuy_api_key
     apis = ['products', 'categories', 'stores', f'products(itemUpdateDate>{last_update_date}&active=*)']
     url = f"https://api.bestbuy.com/v1/{apis[api_index]}"
-
+    
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=10) # default 100, windows limit 64
     async with aiohttp.ClientSession(connector=conn) as session:
         data = await api_bestbuy(session=session, url=url)
         pages = data.get('totalPages', 0)
         print(f'{pages=}')
-        batches = to_matrix(pages, batch_size)
-        for batch in batches:
-            tasks = (api_bestbuy(session=session, url=url, page=page) for _, page in enumerate(batch))
-            t4 = perf_counter()
-            data = await asyncio.gather(*tasks)
-            t5 = perf_counter()
-            print(f'{batch=} | {t5-t4=} | {t5-t0=}')
+        if pages > 0:
+            batches = to_matrix(pages, batch_size)
+            for batch in batches:
+                tasks = (api_bestbuy(session=session, url=url, page=page) for _, page in enumerate(batch))
+                t4 = perf_counter()
+                data = await asyncio.gather(*tasks)
+                t5 = perf_counter()
+                print(f'{batch=} | {t5-t4=} | {t5-t0=}')
 
-            if t5-t4 < 1:
-                print('sleeping...')
-                await asyncio.sleep(1)
+                if t5-t4 < 1:
+                    print('sleeping...')
+                    await asyncio.sleep(1)
     
     t_end = perf_counter()
 
@@ -247,7 +248,7 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
 if __name__ == '__main__':
     # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=False, test=False))
+    loop.run_until_complete(main(api_index=3, folder_index=0, page_size=100, batch_size=5, db=False, test=False))
 
 """
 https://api.bestbuy.com/v1/products?apiKey=AwGV1zCqy6FDoQHNUoNcfjqA&pageSize=100&format=json&show=all&page=1
