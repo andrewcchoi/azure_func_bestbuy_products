@@ -32,7 +32,7 @@ def send_email(total_pages, total_dur, db):
     # * send email when complete
 
     # * email configurations
-    distribution = ['choiac01@gmail.com', '7605861983@messaging.sprintpcs.com']
+    distribution = ['@gmail.com', '@messaging.sprintpcs.com']
     email_user = config_bestbuy.email_user
     sender = config_bestbuy.email_sender
     password = config_bestbuy.email_password
