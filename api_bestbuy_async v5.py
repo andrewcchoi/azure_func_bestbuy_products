@@ -28,7 +28,7 @@ async def ceiling_division(n, d):
     return -(n // -d)
 
 
-def send_email(total_pages, total_dur):
+def send_email(total_pages, total_dur, db):
     # * send email when complete
 
     # * email configurations
@@ -42,6 +42,7 @@ def send_email(total_pages, total_dur):
     body = f'''\
 Total Pages: {total_pages}
 Total Duration: {total_dur}
+Database Insert: {db}
 Notification Sent (UTC): {datetime.now()}
 by {sender}
 '''
@@ -106,7 +107,7 @@ async def insert_db(io, engine, db_cols, container, page):
         df.to_sql(name='products', con=cnx, if_exists='append', index=False)
 
 
-async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=False, test=False):
+async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
     # * main entrypoint for app
 
     # * initialize configurations
@@ -134,7 +135,7 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
     else:
         path = config_bestbuy.path
     
-    foldername = f'best_buy_{datename}\\{folders[folder_index]}'
+    foldername = f'best_buy_{datename}\\{folders[index]}'
     folderpath = os.path.join(path, foldername)
 
     if not os.path.exists(folderpath):
@@ -168,6 +169,7 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
 
         except Exception as e:
             last_update_date = '2020-01-01T00:00:00'
+
     print(f'{last_update_date=}')
 
     # * best buy api connections
@@ -205,7 +207,6 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
         
         # * if db is True, insert into database
         if db:
-            print('db insert...')
             await insert_db(io=data, engine=engine, db_cols=db_cols, container=container, page=pg)
 
         t3 = perf_counter()
@@ -216,7 +217,7 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
     # * best buy api configurations
     key = config_bestbuy.bestbuy_api_key
     apis = ['products', 'categories', 'stores', f'products(itemUpdateDate>{last_update_date}&active=*)']
-    url = f"https://api.bestbuy.com/v1/{apis[api_index]}"
+    url = f"https://api.bestbuy.com/v1/{apis[index]}"
     
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=10) # default 100, windows limit 64
@@ -241,14 +242,14 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
 
     # * send email if number of pages greater than 0
     if pages > 0:
-        send_email(total_pages=pages, total_dur=round(t_end-t0, 2))
+        send_email(total_pages=pages, total_dur=round(t_end-t0, 2), db=db)
     print(f'fin: {t_end-t0=}')
     
 
 if __name__ == '__main__':
     # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(api_index=3, folder_index=0, page_size=100, batch_size=5, db=False, test=False))
+    loop.run_until_complete(main(index=3, page_size=100, batch_size=5, db=True, test=False))
 
 """
 https://api.bestbuy.com/v1/products?apiKey=AwGV1zCqy6FDoQHNUoNcfjqA&pageSize=100&format=json&show=all&page=1
