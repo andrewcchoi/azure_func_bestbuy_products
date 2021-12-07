@@ -165,6 +165,7 @@ async def main(api_index=0, folder_index=0, page_size=100, batch_size=5, db=Fals
 
         except Exception as e:
             last_update_date = '2020-01-01'
+    print(f'{last_update_date=}')
 
     # * best buy api connections
     async def api_bestbuy(session, url, page=1):
