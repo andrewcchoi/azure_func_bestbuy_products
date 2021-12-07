@@ -252,7 +252,7 @@ if __name__ == '__main__':
     loop.run_until_complete(main(index=3, page_size=100, batch_size=5, db=True, test=False))
 
 """
-https://api.bestbuy.com/v1/products?apiKey=AwGV1zCqy6FDoQHNUoNcfjqA&pageSize=100&format=json&show=all&page=1
+https://api.bestbuy.com/v1/products?apiKey={}&pageSize=100&format=json&show=all&page=1
 
 resources:
 https://docs.aiohttp.org/en/stable/http_request_lifecycle.html
