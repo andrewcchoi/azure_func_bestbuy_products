@@ -28,11 +28,11 @@ async def ceiling_division(n, d):
     return -(n // -d)
 
 
-def send_email(total_pages, total_dur, db):
+def send_email(total_pages, total_dur, url, db):
     # * send email when complete
 
     # * email configurations
-    distribution = ['@gmail.com', '@messaging.sprintpcs.com']
+    distribution = config_bestbuy.email_distribution
     email_user = config_bestbuy.email_user
     sender = config_bestbuy.email_sender
     password = config_bestbuy.email_password
@@ -40,6 +40,7 @@ def send_email(total_pages, total_dur, db):
     # * email subject and body
     subject = f'Best Buy Proucts List Completed ({datetime.today().date()})'
     body = f'''\
+url path: {url}
 Total Pages: {total_pages}
 Total Duration: {total_dur}
 Database Insert: {db}
@@ -110,24 +111,11 @@ async def insert_db(io, engine, db_cols, container, page):
 async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
     # * main entrypoint for app
 
-    # * initialize configurations
+    # * configurations
     t0 = perf_counter()
     batch_size = max(1, batch_size)
     folders = ['products', 'categories', 'stores', 'products_update']
     datename = datetime.utcnow().strftime('%Y%m%d')
-
-    # * cosmos database configurations
-    cosmos_endpoint = config_bestbuy.bestbuy_cosmosdb_end_point
-    cosmos_primary_key = config_bestbuy.bestbuy_cosmosdb_primary_key
-    client = CosmosClient(cosmos_endpoint, cosmos_primary_key)
-    db_name = 'BestBuyDB'
-    database = client.create_database_if_not_exists(id=db_name)
-    container_name = 'Products'
-    container = database.create_container_if_not_exists(
-        id=container_name,
-        partition_key=PartitionKey(path='/department'),
-        offer_throughput=400
-    )
 
     # * filepath to save files
     if test:
@@ -140,37 +128,53 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
 
     if not os.path.exists(folderpath):
         os.makedirs(folderpath)
+    
+    # * initialize cloud databases
+    if db or index == 3:
+        # * cosmos database configurations
+        cosmos_endpoint = config_bestbuy.bestbuy_cosmosdb_end_point
+        cosmos_primary_key = config_bestbuy.bestbuy_cosmosdb_primary_key
+        client = CosmosClient(cosmos_endpoint, cosmos_primary_key)
+        db_name = 'BestBuyDB'
+        database = client.create_database_if_not_exists(id=db_name)
+        container_name = 'Products'
+        container = database.create_container_if_not_exists(
+            id=container_name,
+            partition_key=PartitionKey(path='/department'),
+            offer_throughput=400
+        )
 
-    # * sqlite database path
-    # db = os.path.join(config_bestbuy.path, 'bestbuy.db')
-    # conn_string = f'sqlite:///{db}'
-    # engine = create_engine(conn_string)
 
-    # * sql server database configurations
-    sql_params = quote_plus(config_bestbuy.bestbuy_sql_odbc_string)
-    engine = create_engine(f"mssql+pyodbc:///?odbc_connect={sql_params}")
+        # * sqlite database path
+        # db = os.path.join(config_bestbuy.path, 'bestbuy.db')
+        # conn_string = f'sqlite:///{db}'
+        # engine = create_engine(conn_string)
 
-    # * connect to sql database
-    with engine.connect() as cnx:
-        try:
-            # * retrieve columns from table
-            columns_stmt = "SELECT TOP 0 * FROM products"
-            df_db = pd.read_sql(sql=columns_stmt, con=cnx)
-            db_cols = df_db.columns.tolist()
+        # * sql server database configurations
+        sql_params = quote_plus(config_bestbuy.bestbuy_sql_odbc_string)
+        engine = create_engine(f"mssql+pyodbc:///?odbc_connect={sql_params}")
 
-        except Exception as e:
-            db_cols = []
-            
-        try:
-            # * retreive last itemupdatedate
-            last_update_stmt = 'SELECT MAX(itemUpdateDate) FROM products'
-            df_itemUpdateDate = pd.read_sql(sql=last_update_stmt, con=cnx)
-            last_update_date = df_itemUpdateDate.iloc[0, 0].strftime('%Y-%m-%dT%H:%M:%S')
+        # * connect to sql database
+        with engine.connect() as cnx:
+            try:
+                # * retrieve columns from table
+                columns_stmt = "SELECT TOP 0 * FROM products"
+                df_db = pd.read_sql(sql=columns_stmt, con=cnx)
+                db_cols = df_db.columns.tolist()
 
-        except Exception as e:
-            last_update_date = '2020-01-01T00:00:00'
+            except Exception as e:
+                db_cols = []
+                
+            try:
+                # * retreive last itemupdatedate
+                last_update_stmt = 'SELECT MAX(itemUpdateDate) FROM products'
+                df_itemUpdateDate = pd.read_sql(sql=last_update_stmt, con=cnx)
+                last_update_date = df_itemUpdateDate.iloc[0, 0].strftime('%Y-%m-%dT%H:%M:%S')
 
-    print(f'{last_update_date=}')
+            except Exception as e:
+                last_update_date = '2020-01-01T00:00:00'
+
+        print(f'{last_update_date=}')
 
     # * best buy api connections
     async def api_bestbuy(session, url, page=1):
@@ -221,7 +225,7 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
     
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=10) # default 100, windows limit 64
-    async with aiohttp.ClientSession(connector=conn) as session:
+    async with aiohttp.ClientSession(connector=conn, timeout=30) as session:
         data = await api_bestbuy(session=session, url=url)
         pages = data.get('totalPages', 0)
         print(f'{pages=}')
@@ -242,14 +246,14 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
 
     # * send email if number of pages greater than 0
     if pages > 0:
-        send_email(total_pages=pages, total_dur=round(t_end-t0, 2), db=db)
+        send_email(total_pages=pages, total_dur=round(t_end-t0, 2), url=url, db=db)
     print(f'fin: {t_end-t0=}')
     
 
 if __name__ == '__main__':
     # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(index=3, page_size=100, batch_size=5, db=True, test=False))
+    loop.run_until_complete(main(index=3, page_size=100, batch_size=5, db=False, test=False))
 
 """
 https://api.bestbuy.com/v1/products?apiKey={}&pageSize=100&format=json&show=all&page=1
