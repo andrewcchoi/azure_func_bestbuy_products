@@ -9,6 +9,7 @@ progression:
 3. experiment with azure databases (cosmosdb and sql server db)
 4. convert request functions to asyncio functions
 5. combine aiohttp with asyncio
+6. add email notification when complete
 
 future exploration:
 1. evaluate threading with concurrent futures
