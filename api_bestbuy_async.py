@@ -7,7 +7,7 @@ import aiohttp
 import pandas as pd
 
 from random import uniform
-from time import perf_counter, sleep
+from time import perf_counter
 from datetime import datetime
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine
@@ -54,7 +54,7 @@ by {sender}
     msg['To'] = distribution
     msg.set_content(body)
 
-    # * create connection to email server, login and send email, then close connection
+    # * create secure connection to email server, login and send email, then close connection
     with smtplib.SMTP_SSL('smtp.privateemail.com', 465) as smtp_server:
         smtp_server.login(email_user, password)
         smtp_server.send_message(msg)
@@ -113,6 +113,7 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
 
     # * configurations
     t0 = perf_counter()
+    last_update_date = '2020-01-01T00:00:00'
     batch_size = max(1, batch_size)
     folders = ['products', 'categories', 'stores', 'products_update']
     datename = datetime.utcnow().strftime('%Y%m%d')
@@ -144,7 +145,6 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
             offer_throughput=400
         )
 
-
         # * sqlite database path
         # db = os.path.join(config_bestbuy.path, 'bestbuy.db')
         # conn_string = f'sqlite:///{db}'
@@ -153,27 +153,33 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
         # * sql server database configurations
         sql_params = quote_plus(config_bestbuy.bestbuy_sql_odbc_string)
         engine = create_engine(f"mssql+pyodbc:///?odbc_connect={sql_params}")
-
+        
         # * connect to sql database
-        with engine.connect() as cnx:
+        while True:
             try:
-                # * retrieve columns from table
-                columns_stmt = "SELECT TOP 0 * FROM products"
-                df_db = pd.read_sql(sql=columns_stmt, con=cnx)
-                db_cols = df_db.columns.tolist()
+                beg_con = perf_counter()
+                with engine.connect() as cnx:
+                    # * retrieve columns from table
+                    columns_stmt = "SELECT TOP 0 * FROM products"
+                    df_db = pd.read_sql(sql=columns_stmt, con=cnx)
+                    db_cols = df_db.columns.tolist()
+
+                    # * retreive last itemupdatedate
+                    last_update_stmt = 'SELECT MAX(itemUpdateDate) FROM products'
+                    df_itemUpdateDate = pd.read_sql(sql=last_update_stmt, con=cnx)
+                    last_update_date = df_itemUpdateDate.iloc[0, 0].strftime('%Y-%m-%dT%H:%M:%S')
 
             except Exception as e:
+                # OperationalError
+                print(f'{perf_counter()-beg_con=}\n{e=}')
+                continue
+            
+            finally:
                 db_cols = []
-                
-            try:
-                # * retreive last itemupdatedate
-                last_update_stmt = 'SELECT MAX(itemUpdateDate) FROM products'
-                df_itemUpdateDate = pd.read_sql(sql=last_update_stmt, con=cnx)
-                last_update_date = df_itemUpdateDate.iloc[0, 0].strftime('%Y-%m-%dT%H:%M:%S')
-
-            except Exception as e:
-                last_update_date = '2020-01-01T00:00:00'
-
+                print(f'finally: {perf_counter()-beg_con=}')
+            
+            break
+            
         print(f'{last_update_date=}')
 
     # * best buy api connections
@@ -222,10 +228,11 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
     key = config_bestbuy.bestbuy_api_key
     apis = ['products', 'categories', 'stores', f'products(itemUpdateDate>{last_update_date}&active=*)']
     url = f"https://api.bestbuy.com/v1/{apis[index]}"
-    
+    print(f'{url=}')
+
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=10) # default 100, windows limit 64
-    async with aiohttp.ClientSession(connector=conn, timeout=30) as session:
+    async with aiohttp.ClientSession(connector=conn) as session:
         data = await api_bestbuy(session=session, url=url)
         pages = data.get('totalPages', 0)
         print(f'{pages=}')
@@ -253,7 +260,9 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
 if __name__ == '__main__':
     # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
     loop = asyncio.get_event_loop()
+    loop.run_until_complete(main(index=0, page_size=100, batch_size=5, db=False, test=False))
     loop.run_until_complete(main(index=3, page_size=100, batch_size=5, db=False, test=False))
+    loop.run_until_complete(main(index=3, page_size=100, batch_size=5, db=True, test=False))
 
 """
 https://api.bestbuy.com/v1/products?apiKey={}&pageSize=100&format=json&show=all&page=1
