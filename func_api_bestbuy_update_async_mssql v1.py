@@ -1,5 +1,4 @@
 import os
-import uuid
 import json
 import smtplib
 import asyncio
@@ -12,7 +11,6 @@ from datetime import datetime
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine
 from email.message import EmailMessage
-from azure.cosmos import exceptions, CosmosClient, PartitionKey
 
 import config_bestbuy
 
@@ -107,12 +105,6 @@ async def insert_db(io, engine, db_cols, container, page):
     # * connect to database
     try:
         with engine.connect() as cnx:
-            # * cosmos database
-            # for product in io['products']:
-            #     product['currentPage'] = page
-            #     product['id'] = str(uuid.uuid4())
-            #     container.create_item(body=product)
-            
             # * create dataframes from collected data
             df_meta = pd.DataFrame(io)
             df_meta = df_meta.iloc[:, :-1]
@@ -151,42 +143,10 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
     t0 = perf_counter()
     last_update_date = '2020-01-01T00:00:00'
     batch_size = max(1, batch_size)
-    folders = ['products', 'categories', 'stores', 'products_update']
     datename = datetime.utcnow().strftime('%Y%m%d')
-
-    # * filepath to save files
-    if test:
-        path = config_bestbuy.path_test
-    else:
-        path = config_bestbuy.path
-    
-    foldername = f'best_buy_{datename}\\{folders[index]}'
-    folderpath = os.path.join(path, foldername)
-
-    if not os.path.exists(folderpath):
-        os.makedirs(folderpath)
     
     # * initialize cloud databases
     if db or index == 3:
-        container = None
-        # * cosmos database configurations
-        # cosmos_endpoint = config_bestbuy.bestbuy_cosmosdb_end_point
-        # cosmos_primary_key = config_bestbuy.bestbuy_cosmosdb_primary_key
-        # client = CosmosClient(cosmos_endpoint, cosmos_primary_key)
-        # db_name = 'BestBuyDB'
-        # database = client.create_database_if_not_exists(id=db_name)
-        # container_name = 'Products'
-        # container = database.create_container_if_not_exists(
-        #     id=container_name,
-        #     partition_key=PartitionKey(path='/department'),
-        #     offer_throughput=400
-        # )
-
-        # * sqlite database path
-        # db = os.path.join(config_bestbuy.path, 'bestbuy.db')
-        # conn_string = f'sqlite:///{db}'
-        # engine = create_engine(conn_string)
-
         # * sql server database configurations
         sql_params = quote_plus(config_bestbuy.bestbuy_sql_odbc_string)
         engine = create_engine(f"mssql+pyodbc:///?odbc_connect={sql_params}")
@@ -246,16 +206,10 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
         
         # * retrieve current page
         pg = data.get('currentPage', 0)
-        filename = f'best_buy_{datename}_{pg:05}.json'
-        filepath = os.path.join(folderpath, filename)
-
-        # * save data to filepath
-        with open(filepath, 'w') as f:
-            json.dump(data, f, indent=4)
         
         # * if db is True, insert into database
         if db:
-            await insert_db(io=data, engine=engine, db_cols=db_cols, container=container, page=pg)
+            await insert_db(io=data, engine=engine, db_cols=db_cols, container=None, page=pg)
 
         t3 = perf_counter()
         print(f'{page=}', f'{t1=}', f'{delay=}', f'{(t2-t1)=}', f'{(t3-t2)=}', f'{(t3-t1)=}', f'{(t3-t0)=}', sep=' | ')
@@ -298,14 +252,4 @@ async def main(index=0, page_size=100, batch_size=5, db=False, test=False):
 if __name__ == '__main__':
     # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
     loop = asyncio.get_event_loop()
-    # loop.run_until_complete(main(index=0, page_size=100, batch_size=5, db=False, test=False))
-    loop.run_until_complete(main(index=3, page_size=100, batch_size=5, db=False, test=False))
     loop.run_until_complete(main(index=3, page_size=100, batch_size=5, db=True, test=False))
-
-"""
-https://api.bestbuy.com/v1/products?apiKey={}&pageSize=100&format=json&show=all&page=1
-
-resources:
-https://docs.aiohttp.org/en/stable/http_request_lifecycle.html
-https://docs.aiohttp.org/en/stable/client_reference.html#tcpconnector
-"""
