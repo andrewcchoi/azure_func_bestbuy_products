@@ -31,46 +31,14 @@ async def ceiling_division(n, d):
     return -(n // -d)
 
 
-def email_config():
-    
+def send_error(e):
+    # * send email when complete
+
     # * email configurations
     distribution = os.environ['email_distribution']
     email_user = os.environ['email_user']
     sender = os.environ['email_sender']
     password = os.environ['email_password']
-
-    return distribution, email_user, sender, password
-
-
-def send_qry_dur(dur):
-    # * send email when query takes longer than 1 minute
-
-    distribution, email_user, sender, password = email_config() # * email configurations
-
-    # * email subject and body
-    subject = f'Quer Duration ({datetime.today().date()})'
-    body = f'''\
-duration: {dur}
-Notification Sent (UTC): {datetime.now()}
-by {sender}
-'''
-    # * email message content
-    msg = EmailMessage()
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To'] = distribution
-    msg.set_content(body)
-
-    # * create secure connection to email server, login and send email, then close connection
-    with smtplib.SMTP_SSL('smtp.privateemail.com', 465) as smtp_server:
-        smtp_server.login(email_user, password)
-        smtp_server.send_message(msg)
-
-
-def send_error(e):
-    # * send email when complete
-
-    distribution, email_user, sender, password = email_config() # * email configurations
 
     # * email subject and body
     subject = f'Best Buy Proucts Error ({datetime.today().date()})'
@@ -95,7 +63,11 @@ by {sender}
 def send_email(total_pages, total_dur, url, db):
     # * send email when complete
 
-    distribution, email_user, sender, password = email_config() # * email configurations
+    # * email configurations
+    distribution = os.environ['email_distribution']
+    email_user = os.environ['email_user']
+    sender = os.environ['email_sender']
+    password = os.environ['email_password']
 
     # * email subject and body
     subject = f'Best Buy Proucts List Completed ({datetime.today().date()})'
@@ -198,10 +170,7 @@ async def best_buy(req, index=0, page_size=100, batch_size=5, db=False):
 
                     # * retreive last itemupdatedate
                     last_update_stmt = 'SELECT MAX(itemUpdateDate) FROM products'
-                    qry_beg = perf_counter()
                     df_itemUpdateDate = pd.read_sql(sql=last_update_stmt, con=cnx)
-                    qry_end = perf_counter()
-                    if qry_end-qry_beg > 60: send_qry_dur(qry_end-qry_beg)
                     last_update_date = df_itemUpdateDate.iloc[0, 0].strftime('%Y-%m-%dT%H:%M:%S')
 
             except Exception as e:
@@ -286,16 +255,6 @@ async def best_buy(req, index=0, page_size=100, batch_size=5, db=False):
     body = send_email(total_pages=pages, total_dur=round(t_end-t0, 2), url=url, db=db)
     print(f'fin: {t_end-t0=}')
     
-    return body
-
-def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
-
-    # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
-    # loop = asyncio.get_event_loop()
-    loop = asyncio.new_event_loop()
-    body = loop.run_until_complete(best_buy(req=req, index=3, page_size=100, batch_size=5, db=True))
-
     
     name = req.params.get('name')
     if not name:
@@ -318,3 +277,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
              "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
              status_code=200
         )
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Python HTTP trigger function processed a request.')
+
+    # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
+    # loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(best_buy(req=req, index=3, page_size=100, batch_size=5, db=True))
+
