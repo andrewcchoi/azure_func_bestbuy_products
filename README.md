@@ -10,6 +10,8 @@ progression:
 4. convert request functions to asyncio functions
 5. combine aiohttp with asyncio
 6. add email notification when complete
+7. async requests
+8. publish azure function app on http trigger
 
 future exploration:
-1. evaluate threading with concurrent futures
+1. publish azure function on timer trigger
