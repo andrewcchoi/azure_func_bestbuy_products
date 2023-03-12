@@ -3,7 +3,7 @@ import logging
 
 import azure.functions as func
 
-from api_bestbuy_async_discount_alert import main
+from TimerTrigger1.api_bestbuy_async_discount_alert import main
 
 
 def main(mytimer: func.TimerRequest) -> None:
