@@ -224,7 +224,7 @@ def filter(df):
     return df
 
 
-async def main(page_size=100, batch_size=4, test=False):
+async def bb_main(page_size=100, batch_size=4, test=False):
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
