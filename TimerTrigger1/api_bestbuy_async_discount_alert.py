@@ -13,11 +13,11 @@ from dateutil import tz
 from time import perf_counter, sleep
 from email.message import EmailMessage
 
-import _config_bestbuy
+import TimerTrigger1._config_bestbuy as _config_bestbuy
 
-import dotenv
-dotenv_file = dotenv.find_dotenv()
-dotenv.load_dotenv(dotenv_file)
+# import dotenv
+# dotenv_file = dotenv.find_dotenv()
+# dotenv.load_dotenv(dotenv_file)
 
 # formatting for logger
 FILENAME = 'feller_buncher.log'
@@ -283,8 +283,8 @@ async def main(page_size=100, batch_size=4, test=False):
         
         else:
             # * update env variable
-            dotenv.set_key(dotenv_file, "last_update_date", max_price_date)
-            # os.environ["last_update_date"] = max_price_date
+            # dotenv.set_key(dotenv_file, "last_update_date", max_price_date) # dotenv
+            os.environ["last_update_date"] = max_price_date # system env
         
             # * send email notification
             status_msg(df=df_disc.to_html(index=False), last_update_date=last_update_date)
