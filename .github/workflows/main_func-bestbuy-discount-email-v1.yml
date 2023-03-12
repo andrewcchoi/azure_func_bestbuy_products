@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure Functions: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python project to Azure Function App - bestbuy-products-func
+name: Build and deploy Python project to Azure Function App - func-bestbuy-discount-email-v1
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  PYTHON_VERSION: '3.8' # set this to the python version to use (supports 3.6, 3.7, 3.8) >> $GITHUB_ENV
+  PYTHON_VERSION: '3.8' # set this to the python version to use (supports 3.6, 3.7, 3.8)
 
 jobs:
   build:
@@ -62,9 +62,9 @@ jobs:
         uses: Azure/functions-action@v1
         id: deploy-to-function
         with:
-          app-name: 'bestbuy-products-func'
+          app-name: 'func-bestbuy-discount-email-v1'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_46D039DC3CED423EBCF37B5C673E3D2A }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_AD1C66EC2ED24A88AA75350E5F6FC136 }}
           scm-do-build-during-deployment: true
           enable-oryx-build: true
