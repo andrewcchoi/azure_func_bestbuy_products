@@ -156,6 +156,7 @@ async def api_bestbuy(init, session, url, key, batch_size, page_size, page, page
                 # * send another request if call failed 
                 if status_counter <= 4:
                     status_counter += 1
+                    lumberjack.info(f'{status_counter=}')
                     continue
                 else:
                     break
