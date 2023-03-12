@@ -13,7 +13,7 @@ from dateutil import tz
 from time import perf_counter, sleep
 from email.message import EmailMessage
 
-import _config_bestbuy
+import TimerTrigger1._config_bestbuy as _config_bestbuy
 
 # import dotenv
 # dotenv_file = dotenv.find_dotenv()
