@@ -13,7 +13,7 @@ from dateutil import tz
 from time import perf_counter, sleep
 from email.message import EmailMessage
 
-import TimerTrigger1._config_bestbuy as _config_bestbuy
+import _config_bestbuy
 
 # import dotenv
 # dotenv_file = dotenv.find_dotenv()
@@ -27,11 +27,12 @@ formatter = logging.Formatter(fmt=FORMAT, datefmt=DATEFORMAT)
 
 # change default settings for name and logging level
 logging.captureWarnings(True)
-logging.basicConfig(encoding='utf-8', format=FORMAT, datefmt=DATEFORMAT, level=logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
+# logging.basicConfig(encoding='utf-8', format=FORMAT, datefmt=DATEFORMAT, level=logging.DEBUG) # add version 3.9
 
 # create handler 
 ch = logging.StreamHandler() # show logs in terminal
-fh = logging.handlers.RotatingFileHandler(filename=FILENAME, maxBytes=10*1024*1024, backupCount=4) # rotate on file size, example at 10 MB
+fh = logging.handlers.RotatingFileHandler(filename=FILENAME, maxBytes=1*1024*1024, backupCount=4) # rotate on file size, example at 10 MB
 mh = logging.handlers.SMTPHandler(
         mailhost=(_config_bestbuy.email_host, _config_bestbuy.email_port), 
         fromaddr=_config_bestbuy.email_sender, 
@@ -52,7 +53,7 @@ fh.setFormatter(formatter)
 mh.setFormatter(formatter)
 
 # create logger with name and set logging level
-lumberjack = logging.getLogger(__name__ + " - bestbuy products")
+lumberjack = logging.getLogger(__name__ + " - bestbuy deals")
 lumberjack.setLevel(logging.DEBUG)
 lumberjack.addHandler(fh)
 lumberjack.addHandler(mh)
@@ -303,7 +304,7 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(main(page_size=100, batch_size=4, test=False))
+        loop.run_until_complete(main(page_size=100, batch_size=4, test=True))
         # loop.run(main(index=3, page_size=100, batch_size=4, test=False))
     except KeyboardInterrupt as ke:
         pass
