@@ -32,7 +32,6 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 # create handler 
 ch = logging.StreamHandler() # show logs in terminal
-fh = logging.handlers.RotatingFileHandler(filename=FILENAME, maxBytes=1*1024*1024, backupCount=4) # rotate on file size, example at 10 MB
 mh = logging.handlers.SMTPHandler(
         mailhost=(_config_bestbuy.email_host, _config_bestbuy.email_port), 
         fromaddr=_config_bestbuy.email_sender, 
@@ -44,18 +43,15 @@ mh = logging.handlers.SMTPHandler(
 
 # set logging level (debug, info, warning, error, critical)
 ch.setLevel(logging.DEBUG)
-fh.setLevel(logging.DEBUG)
 mh.setLevel(logging.ERROR)
 
 # format handler00
 ch.setFormatter(formatter)
-fh.setFormatter(formatter)
 mh.setFormatter(formatter)
 
 # create logger with name and set logging level
 lumberjack = logging.getLogger(__name__ + " - bestbuy deals")
 lumberjack.setLevel(logging.DEBUG)
-lumberjack.addHandler(fh)
 lumberjack.addHandler(mh)
 
 
