@@ -139,17 +139,23 @@ async def api_bestbuy(init, session, url, key, batch_size, page_size, page, page
         'sort': 'priceUpdateDate.asc'
         }
 
-    lumberjack.info(f'{url=} | {req_params["page"]=}')
+    # lumberjack.info(f'{url=} | {req_params["page"]=}')
+    lumberjack.info(f'xxx{key} | {url=} | {req_params=}')
 
     # * loop until response is 200
     while True:
         delay = round(uniform(0, (await ceiling_division(batch_size, 5)*.4*batch_size)), 1)
         await asyncio.sleep(delay)
+        lumberjack.info(f'xxxdelaying...')
         t1 = perf_counter()
+        lumberjack.info(f'xxxt1 counter')
 
         async with session.get(url, params=req_params) as r:
+            lumberjack.info(f'xxxsession')
             t2 = perf_counter()
+            lumberjack.info(f'xxxt2 counter')
             if t2-t1 < 1: sleep(1.1-(t2-t1)) # if request is less than 1 sec, wait until 1 sec is reached
+            lumberjack.info(f'xxxsleep')
             lumberjack.info(f'request: {page=} | {pages=} | {total=} | {t1=:.04f} | {delay=:.04f} | {r.status=}')
             
             if r.status != 200:
