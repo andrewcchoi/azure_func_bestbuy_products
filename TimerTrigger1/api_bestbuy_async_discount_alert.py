@@ -125,13 +125,13 @@ def status_msg(df, last_update_date):
 
 
 # * best buy api connections
-async def api_bestbuy(init, session, url, key, batch_size, page_size, page, pages=0, total=0):
+async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, total=0):
     # * configurations
     t0 = perf_counter()
     batch_size = max(1, batch_size)
     
     req_params = {
-        'apiKey': key, 
+        'apiKey': _config_bestbuy.bestbuy_api_key, 
         'pageSize': page_size, 
         'page': page, 
         'format': 'json', 
@@ -229,7 +229,7 @@ def filter(df):
     return df
 
 
-async def bb_main(page_size=100, batch_size=4, test=False):
+async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False):
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
@@ -239,14 +239,13 @@ async def bb_main(page_size=100, batch_size=4, test=False):
     # url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{last_update_date}&onSale=true&active=true&salePrice<>60696.99)"
     # last_update_date = '2023-03-10T12:00:00'
     
-    last_update_date = _config_bestbuy.last_update_date
-    key = _config_bestbuy.bestbuy_api_key
+    # last_update_date = _config_bestbuy.last_update_date
     url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{last_update_date}&onSale=true&active=true&salePrice<>60696.99)"
 
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=5) # default 100, windows limit 64
     async with aiohttp.ClientSession(connector=conn) as session:
-        response = await api_bestbuy(init=1, session=session, url=url, key=key, batch_size=batch_size, page_size=page_size, page=1)
+        response = await api_bestbuy(init=1, session=session, url=url, batch_size=batch_size, page_size=page_size, page=1)
         pages = response.get('totalPages', 0)
         total = response.get('total', 0)
         lumberjack.info(f'{last_update_date=} | {total=} | {pages=}')
@@ -259,7 +258,7 @@ async def bb_main(page_size=100, batch_size=4, test=False):
             lumberjack.info('%s batches', len(batches))
             for _, batch in enumerate(batches):
                 # session, url, key, last_update_date, page_size=100, batch_size=4, pages=1, page=1, total=0
-                tasks = (api_bestbuy(init=0, session=session, url=url, key=key, batch_size=batch_size, page_size=page_size, page=page, pages=pages, total=total) for _, page in enumerate(batch))
+                tasks = (api_bestbuy(init=0, session=session, url=url, batch_size=batch_size, page_size=page_size, page=page, pages=pages, total=total) for _, page in enumerate(batch))
                 t4 = perf_counter()
                 data = pd.concat(await asyncio.gather(*tasks))
                 t5 = perf_counter()
@@ -298,6 +297,7 @@ async def bb_main(page_size=100, batch_size=4, test=False):
         max_price_date = None
 
     lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df.shape=} | {max_price_date=} | {t_end-t0=:.06f}'.center(90, "*"))
+    return max_price_date
     
 
 if __name__ == '__main__':
