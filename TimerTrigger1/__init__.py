@@ -1,3 +1,4 @@
+import os
 import datetime
 import logging
 import asyncio
@@ -6,7 +7,7 @@ import azure.functions as func
 
 from TimerTrigger1.api_bestbuy_async_discount_alert import bb_main
 
-LAST_UPDATE_DATE = '2023-03-11T17:53:43'
+LAST_UPDATE_DATE = os.environ.get("last_update_date")
 
 def main(mytimer: func.TimerRequest) -> None:
     global LAST_UPDATE_DATE
