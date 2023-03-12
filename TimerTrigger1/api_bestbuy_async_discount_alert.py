@@ -300,7 +300,7 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(main(page_size=100, batch_size=4, test=True))
+        loop.run_until_complete(bb_main(page_size=100, batch_size=4, test=True))
         # loop.run(main(index=3, page_size=100, batch_size=4, test=False))
     except KeyboardInterrupt as ke:
         pass
