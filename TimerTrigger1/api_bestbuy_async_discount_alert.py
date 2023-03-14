@@ -117,6 +117,7 @@ def status_msg(df, last_update_date):
     subject = f'Best Buy Deals ({datetime.now()})'
     body = f'''<html><head></head><body>
 <p>New deals since: {last_update_date}</p><br/>
+<p>df shape: {df.shape}</p>
 {df}
 </body></html>
 '''
@@ -223,7 +224,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 
 def filter(df):
     mask = df.loc[:, "discPercent"] >= 0.5
-    df = df.loc[mask, ["discPercent", "salePrice", "regularPrice", "name", "url", "priceUpdateDate", "request_timestamp"]]
+    df = df.loc[mask, ["regularPrice", "salePrice", "discPercent", "name", "url", "priceUpdateDate", "request_timestamp"]]
     df = df.sort_values(by="discPercent", ascending=False).reset_index(drop=True)
 
     return df
@@ -236,14 +237,11 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
 
     # * best buy api configurations
-    # url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{last_update_date}&onSale=true&active=true&salePrice<>60696.99)"
     # last_update_date = '2023-03-10T12:00:00'
-    
-    # last_update_date = _config_bestbuy.last_update_date
     url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{last_update_date}&onSale=true&active=true&salePrice<>60696.99)"
 
     # * async connection to best buy api
-    conn = aiohttp.TCPConnector(limit=5) # default 100, windows limit 64
+    conn = aiohttp.TCPConnector(limit=4) # default 100, windows limit 64
     async with aiohttp.ClientSession(connector=conn) as session:
         response = await api_bestbuy(init=1, session=session, url=url, batch_size=batch_size, page_size=page_size, page=1)
         pages = response.get('totalPages', 0)
@@ -297,16 +295,15 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         max_price_date = None
 
     lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df.shape=} | {max_price_date=} | {t_end-t0=:.06f}'.center(90, "*"))
-    return max_price_date
+    return True
     
 
 if __name__ == '__main__':
-    # [0: 'products', 1: 'categories', 2: 'stores', 3: f'products(itemUpdateDate>{last_update_date}&active=*)']
+    
     loop = asyncio.get_event_loop()
     asyncio.set_event_loop(loop)
     try:
         loop.run_until_complete(bb_main(page_size=100, batch_size=4, test=True))
-        # loop.run(main(index=3, page_size=100, batch_size=4, test=False))
     except KeyboardInterrupt as ke:
         pass
 
