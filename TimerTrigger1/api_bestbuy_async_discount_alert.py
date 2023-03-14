@@ -278,7 +278,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         
         # * if test is true export dataframe, otherwise update environment variable and send email
         if test:
-            df.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
+            df_total.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
         
         else:
             # * send email notification
@@ -286,10 +286,10 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
     else:
         # * create empty variables for logging variables
-        df = pd.DataFrame()
+        df_total = pd.DataFrame()
         df_disc = pd.DataFrame()
 
-    lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
+    lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df_total.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
     return True
     
 
