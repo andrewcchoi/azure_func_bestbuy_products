@@ -274,7 +274,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
     t_end = perf_counter()
 
-    if pages > 0:
+    if df_disc.shape[0] > 0:
         
         # * if test is true export dataframe, otherwise update environment variable and send email
         if test:
