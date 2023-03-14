@@ -281,10 +281,6 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
             df.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
         
         else:
-            # * update env variable
-            # dotenv.set_key(dotenv_file, "last_update_date", max_price_date) # dotenv
-            os.environ["last_update_date"] = max_price_date # system env
-        
             # * send email notification
             status_msg(df_disc=df_disc.to_html(index=False), df_total=df_total, last_update_date=last_update_date)
 
@@ -292,9 +288,8 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         # * create empty variables for logging variables
         df = pd.DataFrame()
         df_disc = pd.DataFrame()
-        max_price_date = None
 
-    lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df.shape=} | {max_price_date=} | {t_end-t0=:.06f}'.center(90, "*"))
+    lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
     return True
     
 
