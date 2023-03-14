@@ -19,7 +19,7 @@ def main(mytimer: func.TimerRequest) -> None:
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('US/Pacific')
 
-    utc = datetime.utcnow() - timedelta(minutes=121) # * utc time 121 minutes before
+    utc = datetime.utcnow() - timedelta(minutes=1441) # * utc time 1_441 minutes (24hrs and 1 min) before
     utc_timestamp = utc.replace(tzinfo=from_zone) # * explicitly apply utc timezone
     local = utc_timestamp.astimezone(to_zone) # * convert to local time
 
