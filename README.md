@@ -12,6 +12,7 @@ progression:
 6. add email notification when complete
 7. async requests
 8. publish azure function app on http trigger
+9. publish azure function on timer trigger
 
 future exploration:
-1. publish azure function on timer trigger
+1. tbd
