@@ -119,7 +119,7 @@ def status_msg(df_total, df_disc, last_update_date):
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
 <p>disc. shape: {df_disc.shape}</p></br>
-{df}
+{df_disc.to_html(index=False)}
 </body></html>
 '''
 
@@ -282,7 +282,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         
         else:
             # * send email notification
-            status_msg(df_disc=df_disc.to_html(index=False), df_total=df_total, last_update_date=last_update_date)
+            status_msg(df_disc=df_disc, df_total=df_total, last_update_date=last_update_date)
 
     else:
         # * create empty variables for logging variables
