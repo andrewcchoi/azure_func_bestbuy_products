@@ -110,14 +110,15 @@ by {email_config()[2]}
     send_email(subject=subject, body=body)
 
 
-def status_msg(df, last_update_date):
+def status_msg(df_total, df_disc, last_update_date):
     # * send email when complete, unable to send to cell phone if body is more than 2 lines
 
     # * email subject and body
     subject = f'Best Buy Deals ({datetime.now()})'
     body = f'''<html><head></head><body>
 <p>New deals since: {last_update_date}</p><br/>
-<p>df shape: {df.shape}</p>
+<p>total shape: {df_total.shape}</p></br>
+<p>disc. shape: {df_disc.shape}</p></br>
 {df}
 </body></html>
 '''
@@ -267,9 +268,8 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
                 data_concat[_] = data
 
-            df = pd.concat(data_concat)
-            max_price_date = df["priceUpdateDate"].dt.strftime('%Y-%m-%dT%H:%M:%S').max()
-            df_disc = filter(df)
+            df_total = pd.concat(data_concat)
+            df_disc = filter(df_total)
             
 
     t_end = perf_counter()
@@ -286,7 +286,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
             os.environ["last_update_date"] = max_price_date # system env
         
             # * send email notification
-            status_msg(df=df_disc.to_html(index=False), last_update_date=last_update_date)
+            status_msg(df_disc=df_disc.to_html(index=False), df_total=df_total, last_update_date=last_update_date)
 
     else:
         # * create empty variables for logging variables
