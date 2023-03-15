@@ -119,7 +119,7 @@ def status_msg(df_total, df_disc, last_update_date):
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
 <p>disc. shape: {df_disc.shape}</p></br>
-{df_disc.to_html(index=False)}
+{df_disc.reset_index().to_html()}
 </body></html>
 '''
 
@@ -287,12 +287,12 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
             # * send email notification
             status_msg(df_disc=df_disc, df_total=df_total, last_update_date=last_update_date)
         
-        trigger_response = df_disc.to_html()
+        trigger_response = df_disc.reset_index().to_html()
 
     else:
         # * create empty dataframe and use total for response
         df_disc = pd.DataFrame()
-        trigger_response = df_total.to_html()
+        trigger_response = df_total.reset_index().to_html()
 
 
     lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df_total.shape=} | {t_end-t0=:.06f}'.center(90, "*"))

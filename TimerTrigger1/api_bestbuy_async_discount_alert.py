@@ -119,7 +119,7 @@ def status_msg(df_total, df_disc, last_update_date):
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
 <p>disc. shape: {df_disc.shape}</p></br>
-{df_disc.to_html(index=False)}
+{df_disc.reset_index().to_html()}
 </body></html>
 '''
 
