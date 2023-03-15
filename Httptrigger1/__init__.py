@@ -17,15 +17,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     #     tzinfo=datetime.timezone.utc).isoformat()
 
     name = req.params.get('name')
+    logging.info(f'name: {name}')
+    
     if not name:
         try:
             req_body = req.get_json()
         except ValueError:
+            name = 'Stranger'
             pass
         else:
             name = req_body.get('name')
-    else:
-        name = 'Stranger'
 
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('US/Pacific')
