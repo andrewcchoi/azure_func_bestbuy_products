@@ -270,6 +270,10 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
             df_total = pd.concat(data_concat)
             df_disc = filter(df_total)
+        
+        else:
+            # * create empty dataframe
+            df_total = pd.DataFrame()
             
 
     t_end = perf_counter()
@@ -283,14 +287,17 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         else:
             # * send email notification
             status_msg(df_disc=df_disc, df_total=df_total, last_update_date=last_update_date)
+        
+        trigger_response = df_disc.to_html()
+
 
     else:
-        # * create empty variables for logging variables
-        df_total = pd.DataFrame()
+        # * create empty dataframe
         df_disc = pd.DataFrame()
+        trigger_response = df_total.to_html()
 
     lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df_total.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
-    return True
+    return trigger_response
     
 
 if __name__ == '__main__':
