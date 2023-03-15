@@ -16,14 +16,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # utc_timestamp = datetime.datetime.utcnow().replace(
     #     tzinfo=datetime.timezone.utc).isoformat()
 
-    # name = req.params.get('name')
-    # if not name:
-    #     try:
-    #         req_body = req.get_json()
-    #     except ValueError:
-    #         pass
-    #     else:
-    #         name = req_body.get('name')
+    name = req.params.get('name')
+    if not name:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            pass
+        else:
+            name = req_body.get('name')
+    else:
+        name = 'Stranger'
 
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('US/Pacific')
@@ -38,7 +40,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     asyncio.set_event_loop(loop)
     df = loop.run_until_complete(bb_main(last_update_date=LAST_UPDATE_DATE))
     
-    name = 'Stranger'
     
     if name:
         return func.HttpResponse(f"Hello {name}!\n\n{df}", mimetype="text/html")
