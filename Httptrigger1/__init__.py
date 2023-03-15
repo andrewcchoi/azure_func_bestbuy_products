@@ -41,7 +41,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     name = 'Stranger'
     
     if name:
-        return func.HttpResponse(f"Hello {name}!\n\n{df}")
+        return func.HttpResponse(f"Hello {name}!\n\n{df}", mimetype="text/html")
     else:
         return func.HttpResponse(
             "Please pass a name on the query string or in the request body",
