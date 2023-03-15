@@ -10,11 +10,20 @@ import azure.functions as func
 
 from TimerTrigger1.api_bestbuy_async_discount_alert import bb_main
 
-def main(mytimer: func.TimerRequest) -> None:
+def main(req: func.HttpRequest) -> func.HttpResponse:
 
     logging.info('ACTION!'.center(20, "*"))
     # utc_timestamp = datetime.datetime.utcnow().replace(
     #     tzinfo=datetime.timezone.utc).isoformat()
+
+    # name = req.params.get('name')
+    # if not name:
+    #     try:
+    #         req_body = req.get_json()
+    #     except ValueError:
+    #         pass
+    #     else:
+    #         name = req_body.get('name')
 
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('US/Pacific')
@@ -29,12 +38,16 @@ def main(mytimer: func.TimerRequest) -> None:
     asyncio.set_event_loop(loop)
     df = loop.run_until_complete(bb_main(last_update_date=LAST_UPDATE_DATE))
     
-    if mytimer.past_due:
-        logging.info('The timer is past due!')
+    name = 'Stranger'
+    
+    if name:
+        return func.HttpResponse(f"Hello {name}!\n\n{df}")
+    else:
+        return func.HttpResponse(
+            "Please pass a name on the query string or in the request body",
+            status_code=400
+        )
 
-    logging.info('Python timer trigger function ran at %s', utc_timestamp)
-
-    return df
 
 '''
 resources: 
