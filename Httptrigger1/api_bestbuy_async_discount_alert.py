@@ -259,7 +259,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
                 # session, url, key, last_update_date, page_size=100, batch_size=4, pages=1, page=1, total=0
                 tasks = (api_bestbuy(init=0, session=session, url=url, batch_size=batch_size, page_size=page_size, page=page, pages=pages, total=total) for _, page in enumerate(batch))
                 t4 = perf_counter()
-                data = pd.concat(await asyncio.gather(*tasks), ignore_index=True)
+                data = pd.concat(await asyncio.gather(*tasks), ignore_index=True).reset_index(drop=True)
                 t5 = perf_counter()
                 lumberjack.info(f'{batch=} | {t5-t4=:.04f} | {t5-t0=:.04f}')
 
@@ -268,7 +268,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
                 data_concat[_] = data
 
-            df_total = pd.concat(data_concat, ingore_index=True)
+            df_total = pd.concat(data_concat, ingore_index=True).reset_index(drop=True)
             df_disc = filter(df_total)
         
         else:
