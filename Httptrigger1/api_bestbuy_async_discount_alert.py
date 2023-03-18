@@ -225,7 +225,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 
 def filter(df):
     mask = df.loc[:, "discPercent"] >= 0.5
-    df = df.loc[mask, ["regularPrice", "salePrice", "discPercent", "name", "url", "priceUpdateDate", "request_timestamp"]]
+    df = df.loc[mask, ["regularPrice", "salePrice", "discPercent", "name", "url", "priceUpdateDate", "request_timestamp"]].reset_index(drop=True)
     df = df.sort_values(by=["discPercent", "name"], ascending=[False, True]).reset_index(drop=True)
 
     return df
