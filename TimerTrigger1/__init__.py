@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 import azure.functions as func
 
 from TimerTrigger1.api_bestbuy_async_discount_alert import bb_main
-from TimerTrigger1.api_bestbuy_async_macbook_alert import bb_main as macbook_main
 
 def main(mytimer: func.TimerRequest) -> None:
 
@@ -30,11 +29,6 @@ def main(mytimer: func.TimerRequest) -> None:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(bb_main(last_update_date=LAST_UPDATE_DATE))
-    
-    # * run macbook module
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(macbook_main())
     
     if mytimer.past_due:
         logging.info('The timer is past due!')
