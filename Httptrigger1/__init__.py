@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import azure.functions as func
 
 from TimerTrigger1.api_bestbuy_async_discount_alert import bb_main
+from TimerTrigger1.api_bestbuy_async_macbook_alert import macbook_main
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
 
@@ -37,13 +38,20 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     LAST_UPDATE_DATE = local.strftime('%Y-%m-%dT%H:%M:%S') # * apply string format to date timestamp
     
+    # * run discount module
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    df = loop.run_until_complete(bb_main(last_update_date=LAST_UPDATE_DATE))
+    df_discount = loop.run_until_complete(bb_main(last_update_date=LAST_UPDATE_DATE))
+    
+    # * run macbook module
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    df_macbook = loop.run_until_complete(macbook_main())
     
     
     if name:
-        return func.HttpResponse(f"Hello {name}!\n\n{df}", mimetype="text/html")
+        return func.HttpResponse(f"Hello {name}!</br>Discounts:</br>{df_discount}</br>Macbook Discounts:</br>{df_macbook}", mimetype="text/html")
+    
     else:
         return func.HttpResponse(
             "Please pass a name on the query string or in the request body",
