@@ -13,7 +13,7 @@ from dateutil import tz
 from time import perf_counter, sleep
 from email.message import EmailMessage
 
-import TimerTrigger1_Macbook._config_bestbuy as _config_bestbuy
+import _config_bestbuy as _config_bestbuy
 
 # formatting for logger
 FILENAME = 'feller_buncher.log'
