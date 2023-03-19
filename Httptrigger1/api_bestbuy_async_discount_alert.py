@@ -268,7 +268,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
                 data_concat[_] = data
 
-            df_total = pd.concat(data_concat, ingore_index=True).reset_index(drop=True)
+            df_total = pd.concat(data_concat, ignore_index=True).reset_index(drop=True)
             df_disc = filter(df_total)
         
         else:
