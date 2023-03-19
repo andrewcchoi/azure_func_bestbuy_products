@@ -8,8 +8,8 @@ from datetime import datetime, timedelta
 
 import azure.functions as func
 
-from TimerTrigger1.api_bestbuy_async_discount_alert import bb_main
-from TimerTrigger1.api_bestbuy_async_macbook_alert import macbook_main
+from HttpTrigger1.api_bestbuy_async_discount_alert import bb_main
+from HttpTrigger1.api_bestbuy_async_macbook_alert import macbook_main
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
 
