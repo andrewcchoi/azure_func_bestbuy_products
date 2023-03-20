@@ -270,6 +270,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         else:
             # * create empty dataframe
             df_total = pd.DataFrame()
+            df_disc = pd.DataFrame()
             
 
     t_end = perf_counter()
@@ -278,7 +279,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         
         # * if test is true export dataframe, otherwise update environment variable and send email
         if test:
-            df_total.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
+            df_disc.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
         
         else:
             # * send email notification

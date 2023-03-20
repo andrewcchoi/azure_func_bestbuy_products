@@ -278,6 +278,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         else:
             # * create empty dataframe
             df_total = pd.DataFrame()
+            df_disc = pd.DataFrame()
             
 
     t_end = perf_counter()
