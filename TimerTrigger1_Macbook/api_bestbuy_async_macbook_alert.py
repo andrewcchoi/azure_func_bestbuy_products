@@ -140,6 +140,11 @@ by {email_config()[2]}
 
 def status_msg(df_total, df_disc, last_update_date):
     # * send email when complete, unable to send to cell phone if body is more than 2 lines
+    
+    df_macbook = df_disc.reset_index(drop=True).to_html()
+    df_macbook = df_macbook.replace('http', '<a href="http')
+    df_macbook = df_macbook.replace('/pdp', '/pdp" target="_blank">url</a>')
+    df_macbook = df_macbook.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
 
     # * email subject and body
     subject = f'TimerTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
@@ -147,7 +152,7 @@ def status_msg(df_total, df_disc, last_update_date):
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
 <p>disc. shape: {df_disc.shape}</p></br>
-{df_disc.reset_index(drop=True).to_html()}
+{df_macbook}
 </body></html>
 '''
 
