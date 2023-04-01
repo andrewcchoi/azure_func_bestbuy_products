@@ -174,7 +174,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
                 'clearance', 'categoryPath', 'priceUpdateDate', 
                 'class', 'subclass', 'department', 'condition']
         bool_cols = ["new", "active", "clearance", "onSale"]
-        float_cols = ["queryTime", "regularPrice", "salePrice", "discPercent", "discPrice"]
+        float_cols = ["queryTime", "regularPrice", "salePrice", "percentSavings"]
         date_cols = ["priceUpdateDate"]
 
         # * create timestamp
@@ -191,8 +191,6 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
             df_products = pd.DataFrame(data['products'])
             df = df_meta.merge(df_products, how='inner', left_index=True, right_index=True)
             df = df.loc[:, cols]
-            df['discPrice'] = df.loc[:, 'regularPrice'] - df.loc[:, 'salePrice']
-            df['discPercent'] = df.loc[:, 'discPrice'].div(df.loc[:, 'regularPrice'], fill_value=-1).round(2)
             df.insert(0, 'request_timestamp', local_timestamp)
 
             # * convert columns to appropriate data type
@@ -220,9 +218,9 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 
 
 def filter(df):
-    mask = df.loc[:, "discPercent"] >= 0.5
-    df = df.loc[mask, ["regularPrice", "salePrice", "discPercent", "name", "url", "priceUpdateDate", "request_timestamp"]].reset_index(drop=True)
-    df = df.sort_values(by=["discPercent", "name"], ascending=[False, True]).reset_index(drop=True)
+    mask = df.loc[:, "percentSavings"] >= 0.5
+    df = df.loc[mask, ["regularPrice", "salePrice", "percentSavings", "name", "url", "priceUpdateDate", "request_timestamp"]].reset_index(drop=True)
+    df = df.sort_values(by=["percentSavings", "name"], ascending=[False, True]).reset_index(drop=True)
 
     return df
 
@@ -235,7 +233,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
     # * best buy api configurations
     # last_update_date = '2023-03-10T12:00:00'
-    url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{last_update_date}&onSale=true&active=true&salePrice<>60696.99)"
+    url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{last_update_date}&onSale=true&active=true&percentSavings>.50&salePrice<>60696.99)"
 
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=4) # default 100, windows limit 64

@@ -56,7 +56,7 @@ class Products:
     def __init__(self, datum):
         self.products = {}
         __collection = []
-        __columns = ["sku", "name", "regularPrice", "salePrice", "dollarSavings", "percentSavings", "url", "addToCartUrl"]
+        __columns = ["sku", "name", "regularPrice", "salePrice", "percentSavings", "url", "addToCartUrl"]
         __names = ["Graphics", "Processor Model", "Solid State Drive Capacity", "System Memory (RAM)", "Processor Model Number"]
         
         for column in __columns:
@@ -228,7 +228,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 
 
 def filter(df):
-    mask = df['Processor Model'].str.startswith('Intel') | df['Processor Model'].str.startswith('Apple M1')
+    mask = df['Processor Model'].str.startswith('Intel')
     df_filter = df.loc[~mask, :].reset_index(drop=True)
     df_filter = df_filter.sort_values(by=["dollarSavings", "name"], ascending=[False, True]).reset_index(drop=True)
 
