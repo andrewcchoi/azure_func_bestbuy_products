@@ -178,7 +178,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
                 'clearance', 'categoryPath', 'priceUpdateDate', 
                 'class', 'subclass', 'department', 'condition']
         bool_cols = ["new", "active", "clearance", "onSale"]
-        float_cols = ["queryTime", "regularPrice", "salePrice", "discPercent"]
+        float_cols = ["queryTime", "regularPrice", "salePrice", "percentSavings"]
         date_cols = ["priceUpdateDate"]
 
         # * create timestamp
