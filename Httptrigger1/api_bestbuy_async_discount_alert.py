@@ -216,13 +216,13 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
             error_msg(e)
 
     t3 = perf_counter()
-    lumberjack.info(f'dataframe: {df.shape=} | {(t2-t1)=:.04f} | {(t3-t2)=:.04f} | {(t3-t1)=:.04f} | {(t3-t0)=:.04f}')
+    lumberjack.info(f'dataframe: {df.columns=} | {(t2-t1)=:.04f} | {(t3-t2)=:.04f} | {(t3-t1)=:.04f} | {(t3-t0)=:.04f}')
 
     return df
 
 
 def filter(df):
-    mask = df.loc[:, "percentSavings"] >= 0.5
+    mask = df.loc[:, "percentSavings"] >= 50
     df = df.loc[mask, ["regularPrice", "salePrice", "percentSavings", "name", "url", "priceUpdateDate", "request_timestamp"]].reset_index(drop=True)
     df = df.sort_values(by=["percentSavings", "name"], ascending=[False, True]).reset_index(drop=True)
 
@@ -237,7 +237,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
     # * best buy api configurations
     # last_update_date = '2023-03-10T12:00:00'
-    url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{last_update_date}&onSale=true&active=true&percentSavings>.50&salePrice<>60696.99)"
+    url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{last_update_date}&onSale=true&active=true&percentSavings>50&salePrice<>60696.99)"
 
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=4) # default 100, windows limit 64
