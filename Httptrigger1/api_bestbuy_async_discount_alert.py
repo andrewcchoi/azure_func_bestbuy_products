@@ -216,7 +216,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
             error_msg(e)
 
     t3 = perf_counter()
-    lumberjack.info(f'dataframe: {df.columns=} | {(t2-t1)=:.04f} | {(t3-t2)=:.04f} | {(t3-t1)=:.04f} | {(t3-t0)=:.04f}')
+    lumberjack.info(f'dataframe: {df.shape=} | {(t2-t1)=:.04f} | {(t3-t2)=:.04f} | {(t3-t1)=:.04f} | {(t3-t0)=:.04f}')
 
     return df
 
@@ -286,13 +286,12 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
             # * send email notification
             status_msg(df_disc=df_disc, df_total=df_total, last_update_date=last_update_date)
         
-        trigger_response = df_disc.reset_index().to_html()
+        trigger_response = df_disc.reset_index(drop=True).to_html()
 
     else:
         # * create empty dataframe and use total for response
         df_disc = pd.DataFrame()
-        trigger_response = df_total.reset_index().to_html()
-
+        trigger_response = df_total.reset_index(drop=True).to_html()
 
     lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df_total.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
     return trigger_response
