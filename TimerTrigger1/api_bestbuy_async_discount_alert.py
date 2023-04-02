@@ -170,7 +170,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
     # * if db is True and length of products table not 0, insert into database
     if len(data["products"]):
         # * database columns
-        cols = ['url', 'name', 'type', 'regularPrice', 'salePrice', 
+        cols = ['url', 'name', 'type', 'regularPrice', 'salePrice', "percentSavings", 
                 'clearance', 'categoryPath', 'priceUpdateDate', 
                 'class', 'subclass', 'department', 'condition']
         bool_cols = ["new", "active", "clearance", "onSale"]
