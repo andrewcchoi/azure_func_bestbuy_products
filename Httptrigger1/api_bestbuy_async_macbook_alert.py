@@ -230,7 +230,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 def filter(df):
     mask = df['Processor Model'].str.startswith('Intel')
     df_filter = df.loc[~mask, :].reset_index(drop=True)
-    df_filter = df_filter.sort_values(by=["percentSavings", "name"], ascending=[False, True]).reset_index(drop=True)
+    df_filter = df_filter.sort_values(by=["salePrice", "name"], ascending=[True, True]).reset_index(drop=True)
 
     return df_filter
 
@@ -294,7 +294,6 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
             status_msg(df_disc=df_disc, df_total=df_total, last_update_date=last_update_date)
         
         trigger_response = df_disc.reset_index(drop=True).to_html()
-
 
     else:
         # * create empty dataframe
