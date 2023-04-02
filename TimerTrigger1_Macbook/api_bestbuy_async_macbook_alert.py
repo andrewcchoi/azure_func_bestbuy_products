@@ -235,7 +235,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 def filter(df):
     mask = df['Processor Model'].str.startswith('Intel')
     df_filter = df.loc[~mask, :].reset_index(drop=True)
-    df_filter = df_filter.sort_values(by=["percentSavings", "name"], ascending=[False, True]).reset_index(drop=True)
+    df_filter = df_filter.sort_values(by=["salePrice", "name"], ascending=[True, True]).reset_index(drop=True)
 
     return df_filter
 
