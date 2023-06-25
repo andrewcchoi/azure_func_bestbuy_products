@@ -59,6 +59,7 @@ def to_matrix(x, n):
     l = []
     for i in range(x):
         l.append(i+1)
+
     return [l[i:i+n] for i in range(0, len(l), n)]
 
 
@@ -149,6 +150,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
         await asyncio.sleep(delay)
         t1 = perf_counter()
         status_counter = 0
+
         async with session.get(url, params=req_params) as r:
             t2 = perf_counter()
             if t2-t1 < 1: sleep(1.1-(t2-t1)) # if request is less than 1 sec, wait until 1 sec is reached
@@ -160,6 +162,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
                     status_counter += 1
                     lumberjack.info(f'{status_counter=}')
                     continue
+
                 else:
                     break
 
@@ -201,10 +204,13 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
             for col in df.columns.tolist():
                 if col in bool_cols:
                     df.loc[:, col] = df.loc[:, col].astype('bool')
+                
                 elif col in float_cols:
                     df.loc[:, col] = df.loc[:, col].astype(float)
+                
                 elif col in date_cols:
                     df.loc[:, col] = pd.to_datetime(df.loc[:, col], errors='coerce', infer_datetime_format=True)
+                
                 else:
                     df.loc[:, col] = df.loc[:, col].astype('str')
         
@@ -223,7 +229,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 
 def filter(df):
     mask = df.loc[:, "percentSavings"] >= 50
-    df = df.loc[mask, ["regularPrice", "salePrice", "percentSavings", "name", "url", "priceUpdateDate", "request_timestamp"]].reset_index(drop=True)
+    df = df.loc[mask, ["salePrice", "name", "url", "priceUpdateDate", "request_timestamp"]].reset_index(drop=True)
     df = df.sort_values(by=["salePrice", "name"], ascending=[True, True]).reset_index(drop=True)
 
     return df
@@ -233,7 +239,6 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
-
 
     # * best buy api configurations
     # last_update_date = '2023-03-10T12:00:00'
@@ -253,6 +258,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         if pages > 0:
             batches = to_matrix(pages, batch_size)
             lumberjack.info('%s batches', len(batches))
+            
             for _, batch in enumerate(batches):
                 # session, url, key, last_update_date, page_size=100, batch_size=4, pages=1, page=1, total=0
                 tasks = (api_bestbuy(init=0, session=session, url=url, batch_size=batch_size, page_size=page_size, page=page, pages=pages, total=total) for _, page in enumerate(batch))
