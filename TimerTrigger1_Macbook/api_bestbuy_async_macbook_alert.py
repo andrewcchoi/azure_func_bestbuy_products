@@ -56,8 +56,8 @@ class Products:
     def __init__(self, datum):
         self.products = {}
         __collection = []
-        __columns = ["sku", "name", "regularPrice", "salePrice", "percentSavings", "url", "addToCartUrl"]
-        __names = ["Graphics", "Processor Model", "Solid State Drive Capacity", "System Memory (RAM)", "Processor Model Number"]
+        __columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
+        __names = ["Processor Model", "Processor Model Number", "System Memory (RAM)", "Graphics", "Solid State Drive Capacity"]
         
         for column in __columns:
             for data in datum:
@@ -69,13 +69,16 @@ class Products:
         for name in __names:
             for data in datum:
                 __next_value = False
+
                 for detail in data['details']:
                     if name.lower() == detail['name'].lower():
                         __collection.append(detail['value'])
                         __next_value = True
                         break
+
                 if __next_value:
                     continue
+
                 else:
                     __collection.append(None)
             
@@ -87,6 +90,7 @@ def to_matrix(x, n):
     l = []
     for i in range(x):
         l.append(i+1)
+
     return [l[i:i+n] for i in range(0, len(l), n)]
 
 
@@ -143,7 +147,7 @@ def status_msg(df_total, df_disc, last_update_date):
     
     df_macbook = df_disc.reset_index(drop=True).to_html()
     df_macbook = df_macbook.replace('http', '<a href="http')
-    df_macbook = df_macbook.replace('/pdp', '/pdp" target="_blank">url</a>')
+    df_macbook = df_macbook.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
     df_macbook = df_macbook.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
 
     # * email subject and body
@@ -182,8 +186,10 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
         await asyncio.sleep(delay)
         t1 = perf_counter()
         status_counter = 0
+
         async with session.get(url, params=req_params) as r:
             t2 = perf_counter()
+
             if t2-t1 < 1: sleep(1.1-(t2-t1)) # if request is less than 1 sec, wait until 1 sec is reached
             lumberjack.info(f'request: {page=} | {pages=} | {total=} | {t1=:.04f} | {delay=:.04f} | {r.status=}')
             
@@ -193,6 +199,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
                     status_counter += 1
                     lumberjack.info(f'{status_counter=}')
                     continue
+
                 else:
                     break
 
@@ -206,13 +213,6 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
     
     # * if db is True and length of products table not 0, insert into database
     if len(data["products"]):
-
-        # * create timestamp
-        from_zone = tz.tzutc()
-        to_zone = tz.gettz('US/Pacific')
-        utc_timestamp = datetime.utcnow()
-        utc_timestamp = utc_timestamp.replace(tzinfo=from_zone)
-        local_timestamp = utc_timestamp.astimezone(to_zone)
 
         # * create dataframes from collected data
         try:
@@ -245,7 +245,6 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
 
-
     # * best buy api configurations
     # last_update_date = '2023-03-10T12:00:00'
     url = f"https://api.bestbuy.com/v1/products(onSale=true&active=true&manufacturer=Apple&department=COMPUTERS&class=APPLE LAPTOP)"
@@ -264,6 +263,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         if pages > 0:
             batches = to_matrix(pages, batch_size)
             lumberjack.info('%s batches', len(batches))
+
             for _, batch in enumerate(batches):
                 # session, url, key, last_update_date, page_size=100, batch_size=4, pages=1, page=1, total=0
                 tasks = (api_bestbuy(init=0, session=session, url=url, batch_size=batch_size, page_size=page_size, page=page, pages=pages, total=total) for _, page in enumerate(batch))
@@ -299,7 +299,6 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
             status_msg(df_disc=df_disc, df_total=df_total, last_update_date=last_update_date)
         
         trigger_response = df_disc.reset_index(drop=True).to_html()
-
 
     else:
         # * create empty dataframe
