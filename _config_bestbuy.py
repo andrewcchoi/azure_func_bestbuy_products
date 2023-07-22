@@ -18,6 +18,6 @@ email_port = os.environ.get("email_port")
 email_sender = os.environ.get("email_sender")
 email_user = os.environ.get("email_user")
 email_password = os.environ.get("email_password")
-email_distribution = [os.environ.get("email_distribution").split(",")[0], os.environ.get("email_distribution").split(",")[1]]
+email_distribution = os.environ.get("email_distribution").split(",")
 
 last_update_date = os.environ.get("last_update_date")
