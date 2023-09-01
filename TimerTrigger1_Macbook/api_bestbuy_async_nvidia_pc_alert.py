@@ -58,7 +58,7 @@ class Products:
         self.products = {}
         __collection = []
         __columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
-        __names = ["GPU Brand", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"]
+        __names = ["Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"]
         
         for column in __columns:
             for data in datum:
@@ -133,7 +133,7 @@ def error_msg(e):
     # * send email when complete
 
     # * email subject and body
-    subject = f'TimerTrigger1_NVIDIA_PC - Best Buy Products Error ({datetime.now()})'
+    subject = f'TimerTrigger1_Nvidia_Pc - Best Buy Products Error ({datetime.now()})'
     body = f'''\
 error: {e}
 Notification Sent (UTC): {datetime.now()}
@@ -152,7 +152,7 @@ def status_msg(df_total, df_disc, last_update_date):
     df_nvidiapc = df_nvidiapc.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
 
     # * email subject and body
-    subject = f'TimerTrigger1_NVIDIA - Best Buy Deals ({datetime.now()})'
+    subject = f'TimerTrigger1_Nvidia_pc - Best Buy Deals ({datetime.now()})'
     body = f'''<html><head></head><body>
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
