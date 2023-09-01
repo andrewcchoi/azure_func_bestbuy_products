@@ -15,7 +15,6 @@ from email.message import EmailMessage
 
 import _config_bestbuy as _config_bestbuy
 
-
 # formatting for logger
 FILENAME = 'feller_buncher.log'
 FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
@@ -50,6 +49,7 @@ mh.setFormatter(formatter)
 lumberjack = logging.getLogger(__name__ + "- timertrigger1_nvidia_pc - bestbuy deals")
 lumberjack.setLevel(logging.DEBUG)
 lumberjack.addHandler(mh)
+
 
 class Products:
     
@@ -171,8 +171,8 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
     
     req_params = {
         'apiKey': _config_bestbuy.bestbuy_api_key, 
-        'pageSize': 100, 
-        'page': 1, 
+        'pageSize': page_size, 
+        'page': page, 
         'format': 'json', 
         'show': 'sku,name,salePrice,url,addToCartUrl,details',
         'sort': 'priceUpdateDate.asc'
@@ -248,7 +248,6 @@ async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page
     # last_update_date = '2023-03-10T12:00:00'
     # url = f"https://api.bestbuy.com/v1/products(onSale=true&active=true&class in(GAMING LAPTOPS,SURFACE LAPTOP,MOBILE COMPUTING,SO LAPTOPS)&(search=nvidia))"
     url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&active=true&onSale=true&details.value=nvidia)"
-
 
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=4) # default 100, windows limit 64
