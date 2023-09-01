@@ -132,7 +132,7 @@ def error_msg(e):
     # * send email when complete
 
     # * email subject and body
-    subject = f'HttpTrigger1_NVIDIA_PC - Best Buy Products Error ({datetime.now()})'
+    subject = f'HttpTrigger1_Nvidia_Pc - Best Buy Products Error ({datetime.now()})'
     body = f'''\
 error: {e}
 Notification Sent (UTC): {datetime.now()}
@@ -151,7 +151,7 @@ def status_msg(df_total, df_disc, last_update_date):
     df_nvidiapc = df_nvidiapc.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
 
     # * email subject and body
-    subject = f'HttpTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
+    subject = f'HttpTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})'
     body = f'''<html><head></head><body>
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
