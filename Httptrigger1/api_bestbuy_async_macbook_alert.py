@@ -46,7 +46,7 @@ ch.setFormatter(formatter)
 mh.setFormatter(formatter)
 
 # create logger with name and set logging level
-lumberjack = logging.getLogger(__name__ + "- timertrigger1_macbook - bestbuy deals")
+lumberjack = logging.getLogger(__name__ + "- httptrigger1_macbook - bestbuy deals")
 lumberjack.setLevel(logging.DEBUG)
 lumberjack.addHandler(mh)
 
@@ -132,7 +132,7 @@ def error_msg(e):
     # * send email when complete
 
     # * email subject and body
-    subject = f'TimerTrigger1_Macbook - Best Buy Products Error ({datetime.now()})'
+    subject = f'HttpTrigger1_Macbook - Best Buy Products Error ({datetime.now()})'
     body = f'''\
 error: {e}
 Notification Sent (UTC): {datetime.now()}
@@ -146,7 +146,7 @@ def status_msg(df_total, df_disc, last_update_date):
     # * send email when complete, unable to send to cell phone if body is more than 2 lines
 
     # * email subject and body
-    subject = f'TimerTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
+    subject = f'HttpTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
     body = f'''<html><head></head><body>
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
