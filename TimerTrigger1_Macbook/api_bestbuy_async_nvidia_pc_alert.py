@@ -172,8 +172,8 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
     
     req_params = {
         'apiKey': _config_bestbuy.bestbuy_api_key, 
-        'pageSize': 100, 
-        'page': 1, 
+        'pageSize': page_size, 
+        'page': page, 
         'format': 'json', 
         'show': 'sku,name,salePrice,url,addToCartUrl,details',
         'sort': 'priceUpdateDate.asc'
