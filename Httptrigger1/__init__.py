@@ -10,6 +10,7 @@ import azure.functions as func
 
 from Httptrigger1.api_bestbuy_async_discount_alert import bb_main
 from Httptrigger1.api_bestbuy_async_macbook_alert import bb_main as macbook_main
+from Httptrigger1.api_bestbuy_async_nvidia_pc_alert import bb_main_nvidia
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
 
@@ -44,6 +45,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     df_discount = loop.run_until_complete(bb_main(last_update_date=LAST_UPDATE_DATE))
     df_discount = df_discount.replace('http', '<a href="http')
     df_discount = df_discount.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
+    df_discount = df_discount.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
     
     # * run macbook module
     loop = asyncio.new_event_loop()
@@ -53,9 +55,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     df_macbook = df_macbook.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
     df_macbook = df_macbook.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
     
+    # * run nvidia pc module
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    df_nvidia_pc = loop.run_until_complete(bb_main_nvidia())
+    df_nvidia_pc = df_nvidia_pc.replace('http', '<a href="http')
+    df_nvidia_pc = df_nvidia_pc.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
+    df_nvidia_pc = df_nvidia_pc.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
+    
     
     if name:
-        return func.HttpResponse(f"Hello {name}!</br>Discounts:</br>{df_discount}</br>Macbook Discounts:</br>{df_macbook}", mimetype="text/html")
+        return func.HttpResponse(f"Hello {name}!</br>Discounts:</br>{df_discount}</br>Macbook Discounts:</br>{df_macbook}</br>NVIDIA Discounts:</br>{df_nvidia_pc}", mimetype="text/html")
     
     else:
         return func.HttpResponse(

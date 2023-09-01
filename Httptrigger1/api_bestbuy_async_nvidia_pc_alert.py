@@ -15,41 +15,6 @@ from email.message import EmailMessage
 
 import _config_bestbuy as _config_bestbuy
 
-# formatting for logger
-FILENAME = 'feller_buncher.log'
-FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
-DATEFORMAT = '%m/%d/%Y %I:%M:%S %p'
-formatter = logging.Formatter(fmt=FORMAT, datefmt=DATEFORMAT)
-
-# change default settings for name and logging level
-logging.captureWarnings(True)
-logging.getLogger().setLevel(logging.DEBUG)
-# logging.basicConfig(encoding='utf-8', format=FORMAT, datefmt=DATEFORMAT, level=logging.DEBUG) # add version 3.9
-
-# create handler 
-ch = logging.StreamHandler() # show logs in terminal
-mh = logging.handlers.SMTPHandler(
-        mailhost=(_config_bestbuy.email_host, _config_bestbuy.email_port), 
-        fromaddr=_config_bestbuy.email_sender, 
-        toaddrs=_config_bestbuy.email_distribution, 
-        subject='SMTP E-Mail Logs', 
-        credentials=(_config_bestbuy.email_user, _config_bestbuy.email_password), 
-        secure=()
-    )
-
-# set logging level (debug, info, warning, error, critical)
-ch.setLevel(logging.DEBUG)
-mh.setLevel(logging.ERROR)
-
-# format handler00
-ch.setFormatter(formatter)
-mh.setFormatter(formatter)
-
-# create logger with name and set logging level
-lumberjack = logging.getLogger(__name__ + "- timertrigger1_macbook - bestbuy deals")
-lumberjack.setLevel(logging.DEBUG)
-lumberjack.addHandler(mh)
-
 
 class Products:
     
@@ -57,7 +22,7 @@ class Products:
         self.products = {}
         __collection = []
         __columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
-        __names = ["Processor Model", "Processor Model Number", "System Memory (RAM)", "Graphics", "Solid State Drive Capacity"]
+        __names = ["GPU Brand", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"]
         
         for column in __columns:
             for data in datum:
@@ -132,7 +97,7 @@ def error_msg(e):
     # * send email when complete
 
     # * email subject and body
-    subject = f'TimerTrigger1_Macbook - Best Buy Products Error ({datetime.now()})'
+    subject = f'TimerTrigger1_NVIDIA_PC - Best Buy Products Error ({datetime.now()})'
     body = f'''\
 error: {e}
 Notification Sent (UTC): {datetime.now()}
@@ -144,6 +109,11 @@ by {email_config()[2]}
 
 def status_msg(df_total, df_disc, last_update_date):
     # * send email when complete, unable to send to cell phone if body is more than 2 lines
+    
+    df_nvidiapc = df_disc.reset_index(drop=True).to_html()
+    df_nvidiapc = df_nvidiapc.replace('http', '<a href="http')
+    df_nvidiapc = df_nvidiapc.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
+    df_nvidiapc = df_nvidiapc.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
 
     # * email subject and body
     subject = f'TimerTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
@@ -151,7 +121,7 @@ def status_msg(df_total, df_disc, last_update_date):
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
 <p>disc. shape: {df_disc.shape}</p></br>
-{df_disc.reset_index(drop=True).to_html()}
+{df_nvidiapc}
 </body></html>
 '''
 
@@ -166,10 +136,10 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
     
     req_params = {
         'apiKey': _config_bestbuy.bestbuy_api_key, 
-        'pageSize': page_size, 
-        'page': page, 
+        'pageSize': 100, 
+        'page': 1, 
         'format': 'json', 
-        'show': 'all',
+        'show': 'sku,name,salePrice,url,addToCartUrl,details',
         'sort': 'priceUpdateDate.asc'
         }
 
@@ -235,13 +205,16 @@ def filter(df):
     return df_filter
 
 
-async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False):
+async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False):
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
 
     # * best buy api configurations
-    url = f"https://api.bestbuy.com/v1/products(onSale=true&active=true&manufacturer=Apple&department=COMPUTERS&class=APPLE LAPTOP)"
+    # last_update_date = '2023-03-10T12:00:00'
+    # url = f"https://api.bestbuy.com/v1/products(onSale=true&active=true&class in(GAMING LAPTOPS,SURFACE LAPTOP,MOBILE COMPUTING,SO LAPTOPS)&(search=nvidia))"
+    url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&active=true&onSale=true&details.value=nvidia)"
+
 
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=4) # default 100, windows limit 64
@@ -279,13 +252,14 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
             df_total = pd.DataFrame()
             df_disc = pd.DataFrame()
             
+
     t_end = perf_counter()
 
     if df_disc.shape[0] > 0:
         
         # * if test is true export dataframe, otherwise update environment variable and send email
         if test:
-            df_total.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
+            df_disc.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
         
         else:
             # * send email notification
@@ -304,10 +278,46 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
 
 if __name__ == '__main__':
     
+    
+    # formatting for logger
+    FILENAME = 'feller_buncher.log'
+    FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+    DATEFORMAT = '%m/%d/%Y %I:%M:%S %p'
+    formatter = logging.Formatter(fmt=FORMAT, datefmt=DATEFORMAT)
+
+    # change default settings for name and logging level
+    logging.captureWarnings(True)
+    logging.getLogger().setLevel(logging.DEBUG)
+    # logging.basicConfig(encoding='utf-8', format=FORMAT, datefmt=DATEFORMAT, level=logging.DEBUG) # add version 3.9
+
+    # create handler 
+    ch = logging.StreamHandler() # show logs in terminal
+    mh = logging.handlers.SMTPHandler(
+            mailhost=(_config_bestbuy.email_host, _config_bestbuy.email_port), 
+            fromaddr=_config_bestbuy.email_sender, 
+            toaddrs=_config_bestbuy.email_distribution, 
+            subject='SMTP E-Mail NVIDIA PC Logs', 
+            credentials=(_config_bestbuy.email_user, _config_bestbuy.email_password), 
+            secure=()
+        )
+
+    # set logging level (debug, info, warning, error, critical)
+    ch.setLevel(logging.DEBUG)
+    mh.setLevel(logging.ERROR)
+
+    # format handler00
+    ch.setFormatter(formatter)
+    mh.setFormatter(formatter)
+
+    # create logger with name and set logging level
+    lumberjack = logging.getLogger(__name__ + "- timertrigger1_nvidia_pc - bestbuy deals")
+    lumberjack.setLevel(logging.DEBUG)
+    lumberjack.addHandler(mh)
+
     loop = asyncio.get_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(bb_main(page_size=100, batch_size=4, test=False))
+        loop.run_until_complete(bb_main_nvidia(page_size=100, batch_size=4, test=False))
     except KeyboardInterrupt as ke:
         pass
 
