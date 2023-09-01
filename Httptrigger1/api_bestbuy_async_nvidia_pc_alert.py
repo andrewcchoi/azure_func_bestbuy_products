@@ -16,6 +16,41 @@ from email.message import EmailMessage
 import _config_bestbuy as _config_bestbuy
 
 
+# formatting for logger
+FILENAME = 'feller_buncher.log'
+FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+DATEFORMAT = '%m/%d/%Y %I:%M:%S %p'
+formatter = logging.Formatter(fmt=FORMAT, datefmt=DATEFORMAT)
+
+# change default settings for name and logging level
+logging.captureWarnings(True)
+logging.getLogger().setLevel(logging.DEBUG)
+# logging.basicConfig(encoding='utf-8', format=FORMAT, datefmt=DATEFORMAT, level=logging.DEBUG) # add version 3.9
+
+# create handler 
+ch = logging.StreamHandler() # show logs in terminal
+mh = logging.handlers.SMTPHandler(
+        mailhost=(_config_bestbuy.email_host, _config_bestbuy.email_port), 
+        fromaddr=_config_bestbuy.email_sender, 
+        toaddrs=_config_bestbuy.email_distribution, 
+        subject='SMTP E-Mail NVIDIA PC Logs', 
+        credentials=(_config_bestbuy.email_user, _config_bestbuy.email_password), 
+        secure=()
+    )
+
+# set logging level (debug, info, warning, error, critical)
+ch.setLevel(logging.DEBUG)
+mh.setLevel(logging.ERROR)
+
+# format handler00
+ch.setFormatter(formatter)
+mh.setFormatter(formatter)
+
+# create logger with name and set logging level
+lumberjack = logging.getLogger(__name__ + "- timertrigger1_nvidia_pc - bestbuy deals")
+lumberjack.setLevel(logging.DEBUG)
+lumberjack.addHandler(mh)
+
 class Products:
     
     def __init__(self, datum):
@@ -278,42 +313,6 @@ async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page
 
 if __name__ == '__main__':
     
-    
-    # formatting for logger
-    FILENAME = 'feller_buncher.log'
-    FORMAT = '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
-    DATEFORMAT = '%m/%d/%Y %I:%M:%S %p'
-    formatter = logging.Formatter(fmt=FORMAT, datefmt=DATEFORMAT)
-
-    # change default settings for name and logging level
-    logging.captureWarnings(True)
-    logging.getLogger().setLevel(logging.DEBUG)
-    # logging.basicConfig(encoding='utf-8', format=FORMAT, datefmt=DATEFORMAT, level=logging.DEBUG) # add version 3.9
-
-    # create handler 
-    ch = logging.StreamHandler() # show logs in terminal
-    mh = logging.handlers.SMTPHandler(
-            mailhost=(_config_bestbuy.email_host, _config_bestbuy.email_port), 
-            fromaddr=_config_bestbuy.email_sender, 
-            toaddrs=_config_bestbuy.email_distribution, 
-            subject='SMTP E-Mail NVIDIA PC Logs', 
-            credentials=(_config_bestbuy.email_user, _config_bestbuy.email_password), 
-            secure=()
-        )
-
-    # set logging level (debug, info, warning, error, critical)
-    ch.setLevel(logging.DEBUG)
-    mh.setLevel(logging.ERROR)
-
-    # format handler00
-    ch.setFormatter(formatter)
-    mh.setFormatter(formatter)
-
-    # create logger with name and set logging level
-    lumberjack = logging.getLogger(__name__ + "- timertrigger1_nvidia_pc - bestbuy deals")
-    lumberjack.setLevel(logging.DEBUG)
-    lumberjack.addHandler(mh)
-
     loop = asyncio.get_event_loop()
     asyncio.set_event_loop(loop)
     try:
