@@ -239,7 +239,7 @@ def filter(df):
     return df_filter
 
 
-async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False):
+async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False, email=False):
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
@@ -294,8 +294,8 @@ async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page
         if test:
             df_disc.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
         
-        else:
-            # * send email notification
+        # * send email notification
+        if email:
             status_msg(df_disc=df_disc, df_total=df_total, last_update_date=last_update_date)
         
         trigger_response = df_disc.reset_index(drop=True).to_html()
@@ -314,7 +314,7 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(bb_main_nvidia(page_size=100, batch_size=4, test=False))
+        loop.run_until_complete(bb_main_nvidia(page_size=100, batch_size=4, test=False, email=False))
     except KeyboardInterrupt as ke:
         pass
 
