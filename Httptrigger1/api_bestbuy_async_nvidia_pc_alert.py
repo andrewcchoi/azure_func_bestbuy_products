@@ -246,8 +246,7 @@ async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page
 
     # * best buy api configurations
     # last_update_date = '2023-03-10T12:00:00'
-    # url = f"https://api.bestbuy.com/v1/products(onSale=true&active=true&class in(GAMING LAPTOPS,SURFACE LAPTOP,MOBILE COMPUTING,SO LAPTOPS)&(search=nvidia))"
-    url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&active=true&onSale=true&details.value=nvidia)"
+    url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)"
 
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=4) # default 100, windows limit 64
