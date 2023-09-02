@@ -50,22 +50,38 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # * run macbook module
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    df_macbook = loop.run_until_complete(macbook_main())
+    df_macbook, df_macbook_shape = loop.run_until_complete(macbook_main())
     df_macbook = df_macbook.replace('http', '<a href="http')
     df_macbook = df_macbook.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
     df_macbook = df_macbook.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
     
-    # * run nvidia pc module
+    # * run nvidia laptop module
+    url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)"
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    df_nvidia_pc = loop.run_until_complete(bb_main_nvidia())
-    df_nvidia_pc = df_nvidia_pc.replace('http', '<a href="http')
-    df_nvidia_pc = df_nvidia_pc.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
-    df_nvidia_pc = df_nvidia_pc.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
+    df_nvidia_laptop, df_nvidia_laptop_shape = loop.run_until_complete(bb_main_nvidia(url=url))
+    df_nvidia_laptop = df_nvidia_laptop.replace('http', '<a href="http')
+    df_nvidia_laptop = df_nvidia_laptop.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
+    df_nvidia_laptop = df_nvidia_laptop.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
+    
+    # * run nvidia desktop module
+    url = f"https://api.bestbuy.com/v1/products(categoryPath.name=desktop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)"
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    df_nvidia_desktop, df_nvidia_desktop_shape = loop.run_until_complete(bb_main_nvidia(url=url))
+    df_nvidia_desktop = df_nvidia_desktop.replace('http', '<a href="http')
+    df_nvidia_desktop = df_nvidia_desktop.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
+    df_nvidia_desktop = df_nvidia_desktop.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
     
     
     if name:
-        return func.HttpResponse(f"Hello {name}!</br>Discounts:</br>{df_discount}</br>Macbook Discounts:</br>{df_macbook}</br>NVIDIA Discounts:</br>{df_nvidia_pc}", mimetype="text/html")
+        return func.HttpResponse(f"""
+                                 Hello {name}!</br>
+                                 Discounts:</br>{df_discount}</br>
+                                 Macbook Discounts {df_macbook_shape}:</br>{df_macbook}</br>
+                                 NVIDIA Laptops {df_nvidia_laptop_shape}:</br>{df_nvidia_laptop}"
+                                 NVIDIA Desktops {df_nvidia_desktop_shape}:</br>{df_nvidia_desktop}"
+                                 , mimetype="text/html""")
     
     else:
         return func.HttpResponse(

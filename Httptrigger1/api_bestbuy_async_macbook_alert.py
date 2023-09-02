@@ -299,7 +299,7 @@ async def bb_main(last_update_date=_config_bestbuy.last_update_date, page_size=1
         trigger_response = df_total.reset_index(drop=True).to_html()
 
     lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df_total.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
-    return trigger_response
+    return trigger_response, df_total.shape
     
 
 if __name__ == '__main__':
