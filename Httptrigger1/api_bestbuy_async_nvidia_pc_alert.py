@@ -239,14 +239,14 @@ def filter(df):
     return df_filter
 
 
-async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False, email=False):
+async def bb_main_nvidia(url, last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False, email=False):
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
 
     # * best buy api configurations
     # last_update_date = '2023-03-10T12:00:00'
-    url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)"
+    # url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)"
 
     # * async connection to best buy api
     conn = aiohttp.TCPConnector(limit=4) # default 100, windows limit 64
@@ -305,15 +305,16 @@ async def bb_main_nvidia(last_update_date=_config_bestbuy.last_update_date, page
         trigger_response = df_total.reset_index(drop=True).to_html()
 
     lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df_total.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
-    return trigger_response
+    return trigger_response, df_total.shape
     
 
 if __name__ == '__main__':
-    
+
+    url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)"
     loop = asyncio.get_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(bb_main_nvidia(page_size=100, batch_size=4, test=False, email=False))
+        loop.run_until_complete(bb_main_nvidia(url=url, page_size=100, batch_size=4, test=False, email=False))
     except KeyboardInterrupt as ke:
         pass
 
