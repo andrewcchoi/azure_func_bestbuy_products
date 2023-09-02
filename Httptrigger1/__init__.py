@@ -79,9 +79,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                  Hello {name}!</br>
                                  Discounts:</br>{df_discount}</br>
                                  Macbook Discounts {df_macbook_shape}:</br>{df_macbook}</br>
-                                 NVIDIA Laptops {df_nvidia_laptop_shape}:</br>{df_nvidia_laptop}"
-                                 NVIDIA Desktops {df_nvidia_desktop_shape}:</br>{df_nvidia_desktop}"
-                                 , mimetype="text/html""")
+                                 NVIDIA Laptops {df_nvidia_laptop_shape}:</br>{df_nvidia_laptop}
+                                 NVIDIA Desktops {df_nvidia_desktop_shape}:</br>{df_nvidia_desktop}"""
+                                 , mimetype="text/html")
     
     else:
         return func.HttpResponse(
