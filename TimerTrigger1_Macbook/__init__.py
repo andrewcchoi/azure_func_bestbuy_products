@@ -46,7 +46,7 @@ def main(mytimer: func.TimerRequest) -> None:
 
     LAST_UPDATE_DATE = local.strftime('%Y-%m-%dT%H:%M:%S') # * apply string format to date timestamp
     urls: List[str] = [
-        "https://api.bestbuy.com/v1/products(department=COMPUTERS&class=APPLE LAPTOP&orderable=Available&onlineAvailability=trueonSale=true&active=true&manufacturer=Apple)", 
+        "https://api.bestbuy.com/v1/products(department=COMPUTERS&class=APPLE LAPTOP&orderable=Available&onlineAvailability=true&onSale=true&active=true&manufacturer=Apple)", 
         "https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&orderable=Available&onlineAvailability=true&active=true&onSale=true&details.value=nvidia)"
         ]
 
