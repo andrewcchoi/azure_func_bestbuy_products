@@ -48,6 +48,7 @@ mh.setFormatter(formatter)
 # create logger with name and set logging level
 lumberjack = logging.getLogger(__name__ + "- azure function - bestbuy deals")
 lumberjack.setLevel(logging.DEBUG)
+lumberjack.addHandler(ch)
 lumberjack.addHandler(mh)
 
 
@@ -219,15 +220,18 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, columns=N
         # * create dataframes from collected data
         try:
             if columns and detail_names:
+                lumberjack.info(f"column and details: {columns=} and {detail_names=}")
                 deals = Products(data['products'], columns=columns, detail_names=detail_names)
-            
             elif columns and detail_names==None:
+                lumberjack.info(f"columns: {columns=} and {detail_names=}")
                 deals = Products(data['products'], columns=columns, detail_names=[])
             
             elif columns==None and detail_names:
+                lumberjack.info(f"details: {columns=} and {detail_names=}")
                 deals = Products(data['products'], detail_names=detail_names)
             
             else:
+                lumberjack.info(f"default: {columns=} and {detail_names=}")
                 deals = Products(data['products'])
 
             df = pd.DataFrame(deals.products).reset_index(drop=True)
@@ -340,11 +344,15 @@ if __name__ == '__main__':
     queries = {
         "macbook": {
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&salePrice<1000&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
-            "subject": f'HttpTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
+            "subject": f'HttpTrigger1_Macbook - Best Buy Deals ({datetime.now()})',
+            "columns":None,
+            "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"]
         },
         "nvidia": {
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&salePrice<1000&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
-            "subject": f'HttpTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})'
+            "subject": f'HttpTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})',
+            "columns":None,
+            "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"]
         }
     }
     
@@ -353,7 +361,17 @@ if __name__ == '__main__':
         for query in queries.keys():
             loop = asyncio.get_event_loop()
             asyncio.set_event_loop(loop)
-            loop.run_until_complete(bb_main(url=queries[query]["url"], subject=queries[query]["subject"], page_size=10, batch_size=4, test=False, email=True))
+            loop.run_until_complete(bb_main(
+                    url=queries[query]["url"]
+                    , subject=queries[query]["subject"]
+                    , columns=queries[query]["columns"]
+                    , detail_names=queries[query]["detail_names"]
+                    , page_size=10
+                    , batch_size=4
+                    , test=False
+                    , email=False
+                )
+            )
     except KeyboardInterrupt as ke:
         pass
 
