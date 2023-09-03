@@ -47,7 +47,7 @@ def main(mytimer: func.TimerRequest) -> None:
     local = utc_timestamp.astimezone(to_zone) # * convert to local time
 
     LAST_UPDATE_DATE = local.strftime('%Y-%m-%dT%H:%M:%S') # * apply string format to date timestamp
-    LAST_UPDATE_DATE = '2023-09-01T00:00:00'
+    # LAST_UPDATE_DATE = '2023-09-01T00:00:00'
 
     # Define a type alias for the inner dictionary
     Query = Dict[str, str]
