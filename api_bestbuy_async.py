@@ -52,10 +52,14 @@ lumberjack.addHandler(mh)
 
 
 class Products:
+    # default columns
+    columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
+    detail_names = [
+        "Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", 
+        "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"
+        ]
     
-    def __init__(self, datum):
-        columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
-        detail_names = ["Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"]
+    def __init__(self, datum, columns=columns, detail_names=detail_names):
         self.products = {}
         __collection = []
         
@@ -161,7 +165,7 @@ def status_msg(df_total, subject, last_update_date):
 
 
 # * best buy api connections
-async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, total=0):
+async def api_bestbuy(init, session, url, batch_size, page_size, page, columns=None, detail_names=None, pages=0, total=0):
     # * configurations
     t0 = perf_counter()
     batch_size = max(1, batch_size)
@@ -171,9 +175,10 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
         'pageSize': page_size, 
         'page': page, 
         'format': 'json', 
-        'show': 'sku,name,salePrice,url,addToCartUrl,details',
-        'sort': 'priceUpdateDate.asc'
-        }
+        'show': 'all',
+        'sort': 'salePrice.asc'
+        # 'sort': 'priceUpdateDate.dsc'
+    }
 
     lumberjack.info(f'{url=} | {req_params["page"]=}')
 
@@ -213,8 +218,19 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 
         # * create dataframes from collected data
         try:
-            apple = Products(data['products'])
-            df = pd.DataFrame(apple.products).reset_index(drop=True)
+            if columns and detail_names:
+                deals = Products(data['products'], columns=columns, detail_names=detail_names)
+            
+            elif columns and detail_names==None:
+                deals = Products(data['products'], columns=columns, detail_names=[])
+            
+            elif columns==None and detail_names:
+                deals = Products(data['products'], detail_names=detail_names)
+            
+            else:
+                deals = Products(data['products'])
+
+            df = pd.DataFrame(deals.products).reset_index(drop=True)
             
         except KeyError as e:
             lumberjack.error(f'{e=}', exc_info=True)
@@ -237,7 +253,7 @@ def filter(df):
     return df_filter
 
 
-async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False, email=False):
+async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False, email=False, columns=None, detail_names=None):
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
@@ -259,7 +275,21 @@ async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_dat
 
             for _, batch in enumerate(batches):
                 # session, url, key, last_update_date, page_size=100, batch_size=4, pages=1, page=1, total=0
-                tasks = (api_bestbuy(init=0, session=session, url=url, batch_size=batch_size, page_size=page_size, page=page, pages=pages, total=total) for _, page in enumerate(batch))
+                tasks = (
+                    api_bestbuy(
+                        init=0, 
+                        session=session, 
+                        url=url, 
+                        batch_size=batch_size, 
+                        page_size=page_size, 
+                        page=page, 
+                        pages=pages, 
+                        total=total, 
+                        columns=columns, 
+                        detail_names=detail_names
+                    ) for _, page in enumerate(batch)
+                )
+
                 t4 = perf_counter()
                 data = pd.concat(await asyncio.gather(*tasks), ignore_index=True).reset_index(drop=True)
                 t5 = perf_counter()
