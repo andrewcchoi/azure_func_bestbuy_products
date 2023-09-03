@@ -140,10 +140,10 @@ by {email_config()[2]}
     send_email(subject=subject, body=body)
 
 
-def status_msg(df_total, df_disc, subject, last_update_date):
+def status_msg(df_total, subject, last_update_date):
     # * send email when complete, unable to send to cell phone if body is more than 2 lines
     
-    df = df_disc.reset_index(drop=True).to_html()
+    df = df_total.reset_index(drop=True).to_html()
     df = df.replace('http', '<a href="http')
     df = df.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
     df = df.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
@@ -153,7 +153,6 @@ def status_msg(df_total, df_disc, subject, last_update_date):
     body = f'''<html><head></head><body>
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
-<p>disc. shape: {df_disc.shape}</p></br>
 {df}
 </body></html>
 '''
@@ -291,7 +290,7 @@ async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_dat
         
         # * send email notification
         if email:
-            status_msg(df_total=df_total, df_total=df_total, subject=subject, last_update_date=last_update_date)
+            status_msg(df_total=df_total, subject=subject, last_update_date=last_update_date)
         
         trigger_response = df_total.reset_index(drop=True).to_html()
 
