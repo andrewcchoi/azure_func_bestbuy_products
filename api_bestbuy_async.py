@@ -334,13 +334,26 @@ async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_dat
     
 
 if __name__ == '__main__':
-    
+
     url = f"https://api.bestbuy.com/v1/products(priceUpdateDate>{_config_bestbuy.last_update_date}&onSale=true&active=true&percentSavings>50&salePrice<>60696.99)"
     url = f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)"
-    loop = asyncio.get_event_loop()
-    asyncio.set_event_loop(loop)
+    queries = {
+        "macbook": {
+            "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&salePrice<1000&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
+            "subject": f'HttpTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
+        },
+        "nvidia": {
+            "url":"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&salePrice<1000&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
+            "subject": f'HttpTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})'
+        }
+    }
+    
     try:
-        loop.run_until_complete(bb_main(url=url, page_size=100, batch_size=4, test=False, email=False))
+        # api calls
+        for query in queries.keys():
+            loop = asyncio.get_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(bb_main(url=queries[query]["url"], subject=queries[query]["subject"], page_size=10, batch_size=4, test=False, email=True))
     except KeyboardInterrupt as ke:
         pass
 
