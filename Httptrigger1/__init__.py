@@ -9,9 +9,7 @@ from datetime import datetime, timedelta
 
 import azure.functions as func
 
-from Httptrigger1.api_bestbuy_async_discount_alert import bb_main
-from Httptrigger1.api_bestbuy_async_macbook_alert import bb_main as macbook_main
-from Httptrigger1.api_bestbuy_async_nvidia_pc_alert import bb_main_nvidia
+from api_bestbuy_async import bb_main
 
 def async_call(url: str, subject: str, email: bool=False)  -> Tuple[str, Tuple]:
     """Makes an asynchronous call to a given URL.
