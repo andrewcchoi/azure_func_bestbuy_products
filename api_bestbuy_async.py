@@ -32,7 +32,7 @@ mh = logging.handlers.SMTPHandler(
         mailhost=(_config_bestbuy.email_host, _config_bestbuy.email_port), 
         fromaddr=_config_bestbuy.email_sender, 
         toaddrs=_config_bestbuy.email_distribution, 
-        subject='SMTP E-Mail NVIDIA PC Logs', 
+        subject='SMTP E-Mail Best Buy Deals Logs', 
         credentials=(_config_bestbuy.email_user, _config_bestbuy.email_password), 
         secure=()
     )
@@ -46,7 +46,7 @@ ch.setFormatter(formatter)
 mh.setFormatter(formatter)
 
 # create logger with name and set logging level
-lumberjack = logging.getLogger(__name__ + "- httptrigger1_nvidia_pc - bestbuy deals")
+lumberjack = logging.getLogger(__name__ + "- azure function - bestbuy deals")
 lumberjack.setLevel(logging.DEBUG)
 lumberjack.addHandler(mh)
 
@@ -54,24 +54,24 @@ lumberjack.addHandler(mh)
 class Products:
     
     def __init__(self, datum):
+        columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
+        details = ["Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"]
         self.products = {}
         __collection = []
-        __columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
-        __names = ["Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"]
         
-        for column in __columns:
+        for column in columns:
             for data in datum:
                 __collection.append(data[column])
             
             self.products[column] = __collection
             __collection = []
 
-        for name in __names:
+        for detail in details:
             for data in datum:
                 __next_value = False
 
                 for detail in data['details']:
-                    if name.lower() == detail['name'].lower():
+                    if detail.lower() == detail['name'].lower():
                         __collection.append(detail['value'])
                         __next_value = True
                         break
@@ -82,7 +82,7 @@ class Products:
                 else:
                     __collection.append(None)
             
-            self.products[name] = __collection        
+            self.products[detail] = __collection        
             __collection = []
 
 
@@ -99,7 +99,6 @@ async def ceiling_division(n, d):
 
 
 def email_config():
-    
     # * email configurations
     host = _config_bestbuy.email_host
     port = _config_bestbuy.email_port
@@ -112,8 +111,8 @@ def email_config():
 
 
 def send_email(subject, body):
-
-    host, port, distribution, email_user, sender, password = email_config() # * email configurations
+    # * email configurations
+    host, port, distribution, email_user, sender, password = email_config() 
     
     # * email message content
     msg = EmailMessage()
@@ -129,10 +128,9 @@ def send_email(subject, body):
 
 
 def error_msg(e):
-    # * send email when complete
+    # * send email on error
 
-    # * email subject and body
-    subject = f'HttpTrigger1_Nvidia_Pc - Best Buy Products Error ({datetime.now()})'
+    subject = f'Azure Function - Best Buy Products Error ({datetime.now()})'
     body = f'''\
 error: {e}
 Notification Sent (UTC): {datetime.now()}
@@ -142,21 +140,21 @@ by {email_config()[2]}
     send_email(subject=subject, body=body)
 
 
-def status_msg(df_total, df_disc, last_update_date):
+def status_msg(df_total, df_disc, subject, last_update_date):
     # * send email when complete, unable to send to cell phone if body is more than 2 lines
     
-    df_nvidiapc = df_disc.reset_index(drop=True).to_html()
-    df_nvidiapc = df_nvidiapc.replace('http', '<a href="http')
-    df_nvidiapc = df_nvidiapc.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
-    df_nvidiapc = df_nvidiapc.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
+    df = df_disc.reset_index(drop=True).to_html()
+    df = df.replace('http', '<a href="http')
+    df = df.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
+    df = df.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
 
     # * email subject and body
-    subject = f'HttpTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})'
+    subject = subject
     body = f'''<html><head></head><body>
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
 <p>disc. shape: {df_disc.shape}</p></br>
-{df_nvidiapc}
+{df}
 </body></html>
 '''
 
@@ -233,13 +231,15 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 
 
 def filter(df):
-    df_filter = df.loc[:, :].reset_index(drop=True)
+    # mask = df['Processor Model'].str.startswith('Intel')
+    mask = None
+    df_filter = df.loc[~mask, :].reset_index(drop=True)
     df_filter = df_filter.sort_values(by=["salePrice", "name"], ascending=[True, True]).reset_index(drop=True)
 
     return df_filter
 
 
-async def bb_main(url, last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False, email=False):
+async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False, email=False):
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
@@ -291,7 +291,7 @@ async def bb_main(url, last_update_date=_config_bestbuy.last_update_date, page_s
         
         # * send email notification
         if email:
-            status_msg(df_disc=df_disc, df_total=df_total, last_update_date=last_update_date)
+            status_msg(df_disc=df_disc, df_total=df_total, subject=subject, last_update_date=last_update_date)
         
         trigger_response = df_disc.reset_index(drop=True).to_html()
 
