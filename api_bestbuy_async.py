@@ -140,10 +140,10 @@ by {email_config()[2]}
     send_email(subject=subject, body=body)
 
 
-def status_msg(df_total, df_disc, subject, last_update_date):
+def status_msg(df_total, subject, last_update_date):
     # * send email when complete, unable to send to cell phone if body is more than 2 lines
     
-    df = df_disc.reset_index(drop=True).to_html()
+    df = df_total.reset_index(drop=True).to_html()
     df = df.replace('http', '<a href="http')
     df = df.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
     df = df.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
@@ -153,7 +153,6 @@ def status_msg(df_total, df_disc, subject, last_update_date):
     body = f'''<html><head></head><body>
 <p>New deals since: {last_update_date}</p><br/>
 <p>total shape: {df_total.shape}</p></br>
-<p>disc. shape: {df_disc.shape}</p></br>
 {df}
 </body></html>
 '''
@@ -231,8 +230,8 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, pages=0, 
 
 
 def filter(df):
-    # mask = df['Processor Model'].str.startswith('Intel')
-    # df_filter = df.loc[~mask, :].reset_index(drop=True)
+    mask = df['Processor Model'].str.startswith('Intel')
+    df_filter = df.loc[~mask, :].reset_index(drop=True)
     df_filter = df_filter.sort_values(by=["salePrice", "name"], ascending=[True, True]).reset_index(drop=True)
 
     return df_filter
@@ -272,35 +271,36 @@ async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_dat
                 data_concat[_] = data
 
             df_total = pd.concat(data_concat, ignore_index=True).reset_index(drop=True)
-            df_disc = filter(df_total)
+            df_total = df_total.sort_values(by=["salePrice", "name"], ascending=[True, True]).reset_index(drop=True)
+            # df_disc = filter(df_total)
         
         else:
             # * create empty dataframe
             df_total = pd.DataFrame()
-            df_disc = pd.DataFrame()
+            # df_disc = pd.DataFrame()
             
 
     t_end = perf_counter()
 
-    if df_disc.shape[0] > 0:
+    if df_total.shape[0] > 0:
         
         # * if test is true export dataframe, otherwise update environment variable and send email
         if test:
-            df_disc.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
+            df_total.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
         
         # * send email notification
         if email:
-            status_msg(df_disc=df_disc, df_total=df_total, subject=subject, last_update_date=last_update_date)
+            status_msg(df_total=df_total, subject=subject, last_update_date=last_update_date)
         
-        trigger_response = df_disc.reset_index(drop=True).to_html()
+        trigger_response = df_total.reset_index(drop=True).to_html()
 
     else:
         # * create empty dataframe
-        df_disc = pd.DataFrame()
+        df_total = pd.DataFrame()
         trigger_response = df_total.reset_index(drop=True).to_html()
 
-    lumberjack.info(f'fin: {pages=} | {total=} | {df_disc.shape=} | {df_total.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
-    return trigger_response, df_total.shape, df_disc.shape
+    lumberjack.info(f'fin: {pages=} | {total=} | {df_total.shape=} | {t_end-t0=:.06f}'.center(90, "*"))
+    return trigger_response, df_total.shape
     
 
 if __name__ == '__main__':
