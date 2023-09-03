@@ -52,7 +52,7 @@ def main(mytimer: func.TimerRequest) -> None:
     # Use the type alias for the outer dictionary
     queries: Dict[str, Query] = {
         "macbook": {
-            "url":"https://api.bestbuy.com/v1/products(department=COMPUTERS&class=APPLE LAPTOP&details.value=Apple M*&orderable=Available&onlineAvailability=true&onSale=true&active=true&manufacturer=Apple)",
+            "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
             "subject": f'HttpTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
         },
         "nvidia": {
