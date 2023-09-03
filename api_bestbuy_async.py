@@ -53,25 +53,30 @@ lumberjack.addHandler(mh)
 
 
 class Products:
-    # default columns
-    columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
-    detail_names = [
-        "Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", 
-        "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"
-        ]
     
-    def __init__(self, datum, columns=columns, detail_names=detail_names):
+    def __init__(self, datum, columns, detail_names, offers):
+        
         self.products = {}
         __collection = []
+
+        # default columns
+        self.columns = columns if columns != None else ["sku", "name", "salePrice", "url", "addToCartUrl"] 
+        self.detail_names = detail_names if detail_names != None else [
+            "Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", 
+            "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"
+            ]
+        self.offers = offers if offers != None else ["startDate", "endDate"]
         
-        for column in columns:
+        # add columns
+        for column in self.columns:
             for data in datum:
                 __collection.append(data[column])
             
             self.products[column] = __collection
             __collection = []
 
-        for name in detail_names:
+        # add details
+        for name in self.detail_names:
             for data in datum:
                 __next_value = False
 
@@ -88,6 +93,20 @@ class Products:
                     __collection.append(None)
             
             self.products[name] = __collection        
+            __collection = []
+
+        # add offers
+        for offer in self.offers:
+            for data in datum:
+                __next_value = False
+
+                offer_value = {}
+                for index, values in enumerate(data['offers']):
+                    offer_value[index] = values[offer]
+                    
+                __collection.append(offer_value)
+            
+            self.products[f"offer.{offer}"] = __collection
             __collection = []
 
 
@@ -166,7 +185,7 @@ def status_msg(df_total, subject, last_update_date):
 
 
 # * best buy api connections
-async def api_bestbuy(init, session, url, batch_size, page_size, page, columns=None, detail_names=None, pages=0, total=0):
+async def api_bestbuy(init, session, url, batch_size, page_size, page, columns=None, detail_names=None, offers=None, pages=0, total=0):
     # * configurations
     t0 = perf_counter()
     batch_size = max(1, batch_size)
@@ -219,21 +238,7 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, columns=N
 
         # * create dataframes from collected data
         try:
-            if columns and detail_names:
-                lumberjack.info(f"column and details: {columns=} and {detail_names=}")
-                deals = Products(data['products'], columns=columns, detail_names=detail_names)
-            elif columns and detail_names==None:
-                lumberjack.info(f"columns: {columns=} and {detail_names=}")
-                deals = Products(data['products'], columns=columns, detail_names=[])
-            
-            elif columns==None and detail_names:
-                lumberjack.info(f"details: {columns=} and {detail_names=}")
-                deals = Products(data['products'], detail_names=detail_names)
-            
-            else:
-                lumberjack.info(f"default: {columns=} and {detail_names=}")
-                deals = Products(data['products'])
-
+            deals = Products(data['products'], columns=columns, detail_names=detail_names, offers=offers)
             df = pd.DataFrame(deals.products).reset_index(drop=True)
             
         except KeyError as e:
@@ -257,7 +262,18 @@ def filter(df):
     return df_filter
 
 
-async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_date, page_size=100, batch_size=4, test=False, email=False, columns=None, detail_names=None):
+async def bb_main(
+        url
+        , subject
+        , columns=None
+        , detail_names=None
+        , offers=None
+        , last_update_date=_config_bestbuy.last_update_date
+        , page_size=100
+        , batch_size=4
+        , test=False
+        , email=False
+    ):
     # * main entrypoint for app
     t0 = perf_counter()
     lumberjack.info(f'beg'.center(69, '*'))
@@ -290,7 +306,8 @@ async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_dat
                         pages=pages, 
                         total=total, 
                         columns=columns, 
-                        detail_names=detail_names
+                        detail_names=detail_names,
+                        offers=offers
                     ) for _, page in enumerate(batch)
                 )
 
@@ -320,7 +337,7 @@ async def bb_main(url, subject, last_update_date=_config_bestbuy.last_update_dat
         
         # * if test is true export dataframe, otherwise update environment variable and send email
         if test:
-            df_total.to_excel('C:\\Users\\User\\downloads\\export.xlsx')
+            df_total.to_excel(f'C:\\Users\\User\\downloads\\{subject.split(" ")[0]}.xlsx')
         
         # * send email notification
         if email:
@@ -346,13 +363,15 @@ if __name__ == '__main__':
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&salePrice<1000&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
             "subject": f'HttpTrigger1_Macbook - Best Buy Deals ({datetime.now()})',
             "columns":None,
-            "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"]
+            "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":None
         },
         "nvidia": {
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&salePrice<1000&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
             "subject": f'HttpTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})',
             "columns":None,
-            "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"]
+            "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":[]
         }
     }
     
@@ -366,9 +385,10 @@ if __name__ == '__main__':
                     , subject=queries[query]["subject"]
                     , columns=queries[query]["columns"]
                     , detail_names=queries[query]["detail_names"]
+                    , offers=queries[query]["offers"]
                     , page_size=10
                     , batch_size=4
-                    , test=False
+                    , test=True
                     , email=False
                 )
             )
