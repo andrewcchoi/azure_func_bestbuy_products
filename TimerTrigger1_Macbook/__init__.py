@@ -14,7 +14,21 @@ def async_call(url: str, subject: str, email: bool=False) -> None:
     """Makes an asynchronous call to a given URL.
 
     :param url: The URL to call.
+    :type url: str
+    :param subject: The subject of the email notification.
+    :type subject: str
     :param email: Whether to send an email notification after the call. Defaults to False.
+    :type email: bool
+
+    .. code-block:: python
+
+        # Example of using async_call function
+        url = "https://api.bestbuy.com/v1/products(longDescription=iPhone*|sku=7619002)"
+        subject = "Best Buy Deals"
+        email = True
+        df, df_shape = async_call(url, subject, email)
+        print(df)
+        print(df_shape)
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
