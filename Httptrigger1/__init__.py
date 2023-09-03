@@ -46,7 +46,59 @@ def async_call(url: str, subject: str, email: bool=False)  -> Tuple[str, Tuple]:
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
+    """Runs a Python HTTP trigger function.
 
+    This function logs an action message, gets the name parameter from the request,
+    gets the current date and time in UTC and US/Pacific zones, formats the date and time as a string,
+    calls four URLs asynchronously using the async_call function, and returns an HTTP response with
+    the name and the HTML content from the URLs.
+
+    Args:
+        req (func.HttpRequest): An HTTP request object.
+
+    Returns:
+        func.HttpResponse: An HTTP response object with the status code, mimetype, and body.
+
+    Examples:
+        >>> import azure.functions as func
+        >>> req = func.HttpRequest(method='GET', url='http://localhost:7071/api/HttpTrigger1?name=MASTER')
+        >>> res = main(req)
+        >>> print(res.get_body())
+        Hello MASTER!
+        discounts (10,11):
+        <table border="1" class="dataframe">
+          <thead>
+            <tr style="text-align: right;">
+              <th></th>
+              <th>name</th>
+              <th>salePrice</th>
+              <th>percentSavings</th>
+              <th>urlLink</th>
+              <th>addToCartUrl</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>0</th>
+              <td>Apple - MacBook Pro - 13.3" Display with Touch Bar - Intel Core i5 - 8GB Memory - 256GB SSD - Space Gray</td>
+              <td>999.99</td>
+              <td>23.08</td>
+              <td><a href="https://www.bestbuy.com/site/apple-macbook-pro-13-3-display-with-touch-bar-intel-core-i5-8gb-memory-256gb-ssd-space-gray/6287719.p?skuId=6287719" target="_blank">urlLink</a></td>
+              <td><a href="https://api.bestbuy.com/click/-/6287719/cart" target="_blank">addToCartUrl</a></td>
+            </tr>
+            ...
+          </tbody>
+        </table>
+
+        macbooks (10,11):
+        ...
+        
+        laptop (10,11):
+        ...
+
+        desktop (10,11):
+        ...
+    """
     logging.info('ACTION!'.center(20, "*"))
     # utc_timestamp = datetime.datetime.utcnow().replace(
     #     tzinfo=datetime.timezone.utc).isoformat()
