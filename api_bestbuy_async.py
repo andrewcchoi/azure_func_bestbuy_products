@@ -55,7 +55,7 @@ class Products:
     
     def __init__(self, datum):
         columns = ["sku", "name", "salePrice", "url", "addToCartUrl"]
-        details = ["Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"]
+        detail_names = ["Advanced Graphics Rendering Technique(s)", "GPU Brand", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "Processor Model Number", "System Memory (RAM)", "Solid State Drive Capacity"]
         self.products = {}
         __collection = []
         
@@ -66,12 +66,12 @@ class Products:
             self.products[column] = __collection
             __collection = []
 
-        for detail in details:
+        for name in detail_names:
             for data in datum:
                 __next_value = False
 
                 for detail in data['details']:
-                    if detail.lower() == detail['name'].lower():
+                    if name.lower() == detail['name'].lower():
                         __collection.append(detail['value'])
                         __next_value = True
                         break
