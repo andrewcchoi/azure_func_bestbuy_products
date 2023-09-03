@@ -82,7 +82,7 @@ class Products:
                 else:
                     __collection.append(None)
             
-            self.products[detail] = __collection        
+            self.products[name] = __collection        
             __collection = []
 
 
