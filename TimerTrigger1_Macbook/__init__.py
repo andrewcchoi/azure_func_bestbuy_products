@@ -38,15 +38,26 @@ def async_call(url: str, subject: str, email: bool=False) -> None:
 def main(mytimer: func.TimerRequest) -> None:
     """Runs a Python timer trigger function.
 
-    This function logs an action message, gets the current date and time in UTC and US/Pacific zones,
-    formats the date and time as a string, calls two URLs asynchronously using the async_call function,
-    and logs the timer status and the UTC timestamp.
+    This function calls two URLs asynchronously using the async_call function,
+    and sends emails with responses in html tables.
 
     Args:
         mytimer (func.TimerRequest): A timer request object.
 
     Raises:
         Exception: If any error occurs during the execution of the function.
+
+    Examples:
+        >>> import azure.functions as func
+        >>> mytimer = func.TimerRequest()
+        >>> main(mytimer)
+        *******ACTION!*******
+        Calling https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true) with subject HttpTrigger1_Macbook - Best Buy Deals (2023-09-02 23:02:01.123456)
+        Sending email notification...
+        Calling https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*) with subject HttpTrigger1_Nvidia_Pc - Best Buy Deals (2023-09-02 23:02:01.123456)
+        Sending email notification...
+        The timer is not past due.
+        Python timer trigger function ran at 2023-09-01 23:02:01.123456+00:00
     """
 
     logging.info('ACTION!'.center(20, "*"))
