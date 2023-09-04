@@ -4,19 +4,33 @@ import logging
 import asyncio
 import azure.functions as func
 
-from typing import Dict
+from typing import Dict, List
 from dateutil import tz
 from datetime import datetime, timedelta
 
 from api_bestbuy_async import bb_main
 
-def async_call(url: str, subject: str, email: bool=False) -> None:
+
+def async_call(
+        url: str
+        , subject: str
+        , columns: List=None
+        , detail_names: List=None
+        , offers: List=None
+        , email: bool=False
+        ) -> None:
     """Makes an asynchronous call to a given URL.
 
     :param url: The URL to call.
     :type url: str
     :param subject: The subject of the email notification.
     :type subject: str
+    :param columns: List of columns to extract from response.
+    :type columns: List
+    :param detail_names: List of details to extract from response.
+    :type detail_names: List
+    :param offers: List of offer start and end date to extract from response.
+    :type offers: List
     :param email: Whether to send an email notification after the call. Defaults to False.
     :type email: bool
 
@@ -26,13 +40,22 @@ def async_call(url: str, subject: str, email: bool=False) -> None:
         url = "https://api.bestbuy.com/v1/products(longDescription=iPhone*|sku=7619002)"
         subject = "Best Buy Deals"
         email = True
-        df, df_shape = async_call(url, subject, email)
+        df, df_shape = async_call(url, subject, columns, detail_names, offers, email)
         print(df)
         print(df_shape)
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(bb_main(url=url, subject=subject, email=email))
+    loop.run_until_complete(
+        bb_main(
+            url=url
+            , subject=subject
+            , columns=columns
+            , detail_names=detail_names
+            , offers=offers
+            , email=email
+        )
+    )
 
 
 def main(mytimer: func.TimerRequest) -> None:
@@ -72,22 +95,41 @@ def main(mytimer: func.TimerRequest) -> None:
     LAST_UPDATE_DATE = local.strftime('%Y-%m-%dT%H:%M:%S') # * apply string format to date timestamp
 
     # Define a type alias for the inner dictionary
-    Query = Dict[str, str]
+    inner_queries = Dict[str, str]
 
     # Use the type alias for the outer dictionary
-    queries: Dict[str, Query] = {
-        "macbook": {
+    queries: Dict[str, inner_queries] = {
+        "discount": {
+            "url":f"https://api.bestbuy.com/v1/products(priceUpdateDate>{LAST_UPDATE_DATE}&onSale=true&active=true&percentSavings>50&salePrice<>60696.99)",
+            "subject": f'TimerTrigger1_Discount>50% - Best Buy Deals ({datetime.now()})',
+            "columns":["salePrice", "name", "url", "addToCartUrl", "priceUpdateDate"],
+            "detail_names":[],
+            "offers":None
+        },"macbook": {
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
-            "subject": f'HttpTrigger1_Macbook - Best Buy Deals ({datetime.now()})'
+            "subject": f'TimerTrigger1_Macbook - Best Buy Deals ({datetime.now()})',
+            "columns":["sku", "name", "salePrice", "onSale", "url", "addToCartUrl"],
+            "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":[]
         },
         "nvidia": {
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
-            "subject": f'HttpTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})'
+            "subject": f'TimerTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})',
+            "columns":None,
+            "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":[]
         }
     }
     # macbook and nvidia pcs deals
     for query in queries.keys():
-        async_call(url=queries[query]["url"], subject=queries[query]["subject"], email=True)
+        async_call(
+            url=queries[query]["url"]
+            , subject=queries[query]["subject"]
+            , columns=queries[query]["columns"]
+            , detail_names=queries[query]["detail_names"]
+            , offers=queries[query]["offers"]
+            , email=True
+        )
     
     if mytimer.past_due:
         logging.info('The timer is past due!')

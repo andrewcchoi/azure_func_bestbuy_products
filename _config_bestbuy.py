@@ -1,8 +1,8 @@
 import os
 import json
 
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 bestbuy_api_key = os.environ.get("API_KEY_BESTBUY")
 

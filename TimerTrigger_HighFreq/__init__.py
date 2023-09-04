@@ -4,19 +4,32 @@ import logging
 import asyncio
 import azure.functions as func
 
-from typing import Dict
+from typing import Dict, List
 from dateutil import tz
 from datetime import datetime, timedelta
 
 from api_bestbuy_async import bb_main
 
-def async_call(url: str, subject: str, email: bool=False) -> None:
+def async_call(
+        url: str
+        , subject: str
+        , columns: List=None
+        , detail_names: List=None
+        , offers: List=None
+        , email: bool=False
+        ) -> None:
     """Makes an asynchronous call to a given URL.
 
     :param url: The URL to call.
     :type url: str
     :param subject: The subject of the email notification.
     :type subject: str
+    :param columns: List of columns to extract from response.
+    :type columns: List
+    :param detail_names: List of details to extract from response.
+    :type detail_names: List
+    :param offers: List of offer start and end date to extract from response.
+    :type offers: List
     :param email: Whether to send an email notification after the call. Defaults to False.
     :type email: bool
 
@@ -26,13 +39,22 @@ def async_call(url: str, subject: str, email: bool=False) -> None:
         url = "https://api.bestbuy.com/v1/products(longDescription=iPhone*|sku=7619002)"
         subject = "Best Buy Deals"
         email = True
-        df, df_shape = async_call(url, subject, email)
+        df, df_shape = async_call(url, subject, columns, detail_names, offers, email)
         print(df)
         print(df_shape)
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(bb_main(url=url, subject=subject, email=email, columns=None, detail_names=None))
+    loop.run_until_complete(
+        bb_main(
+            url=url
+            , subject=subject
+            , columns=columns
+            , detail_names=detail_names
+            , offers=offers
+            , email=email
+        )
+    )
 
 
 def main(mytimer: func.TimerRequest) -> None:
@@ -56,12 +78,22 @@ def main(mytimer: func.TimerRequest) -> None:
     queries: Dict[str, Query] = {
         "nvidia": {
             "url":f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&salePrice<1000&priceUpdateDate>{LAST_UPDATE_DATE}&orderable=Available&onlineAvailability=true&active=true&details.name=Advanced Graphics Rendering Technique*)",
-            "subject": f'!TimerTrigger_Nvidia_Laptop - Best Buy Deals ({datetime.now()})'
+            "subject": f'!TimerTrigger_Nvidia_Laptop - Best Buy Deals ({datetime.now()})',
+            "columns":None,
+            "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":[]
         }
     }
     # macbook and nvidia pcs deals
     for query in queries.keys():
-        async_call(url=queries[query]["url"], subject=queries[query]["subject"], email=True)
+        async_call(
+            url=queries[query]["url"]
+            , subject=queries[query]["subject"]
+            , columns=queries[query]["columns"]
+            , detail_names=queries[query]["detail_names"]
+            , offers=queries[query]["offers"]
+            , email=True
+        )
     
     if mytimer.past_due:
         logging.info('The timer is past due!')

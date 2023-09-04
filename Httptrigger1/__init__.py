@@ -3,7 +3,7 @@ import datetime
 import logging
 import asyncio
 
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
 from dateutil import tz
 from datetime import datetime, timedelta
 
@@ -11,13 +11,25 @@ import azure.functions as func
 
 from api_bestbuy_async import bb_main
 
-def async_call(url: str, subject: str, email: bool=False)  -> Tuple[str, Tuple]:
+def async_call(
+        url: str
+        , subject: str
+        , columns: List=None
+        , detail_names: List=None
+        , offers: List=None
+        , email: bool=False)  -> Tuple[str, Tuple]:
     """Makes an asynchronous call to a given URL.
 
     :param url: The URL to call.
     :type url: str
     :param subject: The subject of the email notification.
     :type subject: str
+    :param columns: List of columns to extract from response.
+    :type columns: List
+    :param detail_names: List of details to extract from response.
+    :type detail_names: List
+    :param offers: List of offer start and end date to extract from response.
+    :type offers: List
     :param email: Whether to send an email notification after the call. Defaults to False.
     :type email: bool
     :return: A tuple of the modified dataframe and its shape.
@@ -35,7 +47,16 @@ def async_call(url: str, subject: str, email: bool=False)  -> Tuple[str, Tuple]:
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    df_html, df_shape = loop.run_until_complete(bb_main(url=url, subject=subject, email=email))
+    df_html, df_shape = loop.run_until_complete(
+        bb_main(
+            url=url
+            , subject=subject
+            , columns=columns
+            , detail_names=detail_names
+            , offers=offers
+            , email=email
+        )
+    )
     df_html = df_html.replace('http', '<a href="http')
     df_html = df_html.replace('/pdp', '/pdp" target="_blank">urlLink</a>')
     df_html = df_html.replace('/cart', '/cart" target="_blank">addToCartUrl</a>')
@@ -129,19 +150,31 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     queries: Dict[str, inner_query] = {
         "discounts": {
             "url":f"https://api.bestbuy.com/v1/products(priceUpdateDate>{LAST_UPDATE_DATE}&onSale=true&active=true&percentSavings>50&salePrice<>60696.99)",
-            "subject": f'HttpTrigger1_Discounts - Best Buy Deals ({datetime.now()})'
+            "subject": f'HttpTrigger1_Discounts - Best Buy Deals ({datetime.now()})',
+            "columns":["salePrice", "name", "url", "addToCartUrl", "priceUpdateDate"],
+            "detail_names":[],
+            "offers":None
         },
         "macbooks": {
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
-            "subject": f'HttpTrigger1_Macbooks - Best Buy Deals ({datetime.now()})'
+            "subject": f'HttpTrigger1_Macbooks - Best Buy Deals ({datetime.now()})',
+            "columns":["sku", "name", "salePrice", "onSale", "url", "addToCartUrl"],
+            "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":None
         },
         "laptop": { # details.name=Advanced Graphics Rendering Technique*
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
-            "subject": f'HttpTrigger1_Nvidia_Laptops - Best Buy Deals ({datetime.now()})'
+            "subject": f'HttpTrigger1_Nvidia_Laptops - Best Buy Deals ({datetime.now()})',
+            "columns":None,
+            "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":[]
         },
         "desktop": {
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=desktop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
-            "subject": f'HttpTrigger1_Nvidia_Desktops - Best Buy Deals ({datetime.now()})'
+            "subject": f'HttpTrigger1_Nvidia_Desktops - Best Buy Deals ({datetime.now()})',
+            "columns":None,
+            "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":[]
         }
     }
 
@@ -149,7 +182,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     # macbook and nvidia pcs deals
     for query in queries.keys():
-        html, shape = async_call(url=queries[query]["url"], subject=queries[query]["subject"], email=False)
+        html, shape = async_call(
+            url=queries[query]["url"]
+            , subject=queries[query]["subject"]
+            , columns=queries[query]["columns"]
+            , detail_names=queries[query]["detail_names"]
+            , offers=queries[query]["offers"]
+            , email=False
+        )
         http_response += f"{query} {shape}:</br>{html}</br>"
 
     if name:
