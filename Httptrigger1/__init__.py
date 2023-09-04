@@ -160,7 +160,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             "subject": f'HttpTrigger1_Macbooks - Best Buy Deals ({datetime.now()})',
             "columns":["sku", "name", "salePrice", "onSale", "url", "addToCartUrl"],
             "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
-            "offers":[]
+            "offers":None
         },
         "laptop": { # details.name=Advanced Graphics Rendering Technique*
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
