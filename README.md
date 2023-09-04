@@ -62,9 +62,8 @@ def test_function(mytimer: func.TimerRequest) -> None:
     logging.info('Python timer trigger function ran at %s', utc_timestamp)
 ```
 
-## future exploration:
-1. microsoft
-2. [ms learn: azure function python developer guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Capplication-level&pivots=python-mode-decorators)
+## resources:
+1. [ms learn: azure function python developer guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Capplication-level&pivots=python-mode-decorators)
 2. [ms learn: azure function python developer guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Capplication-level&pivots=python-mode-decorators)
 3. [ms learn: add dev/test function solution](https://learn.microsoft.com/en-us/answers/questions/1203593/azure-functions-in-dev-prod-enviroment)
 4. [ms learn: add dev/test function solution](https://learn.microsoft.com/en-us/answers/questions/1203593/azure-functions-in-dev-prod-enviroment)
