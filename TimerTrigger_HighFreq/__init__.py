@@ -39,7 +39,7 @@ def async_call(
         url = "https://api.bestbuy.com/v1/products(longDescription=iPhone*|sku=7619002)"
         subject = "Best Buy Deals"
         email = True
-        df, df_shape = async_call(url, subject, email)
+        df, df_shape = async_call(url, subject, columns, detail_names, offers, email)
         print(df)
         print(df_shape)
     """
