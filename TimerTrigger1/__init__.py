@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 
 import azure.functions as func
 
-from TimerTrigger1.api_bestbuy_async_discount_alert import bb_main
 
 def main(mytimer: func.TimerRequest) -> None:
 
@@ -26,9 +25,9 @@ def main(mytimer: func.TimerRequest) -> None:
     LAST_UPDATE_DATE = local.strftime('%Y-%m-%dT%H:%M:%S') # * apply string format to date timestamp
     
     # * run discount module
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(bb_main(last_update_date=LAST_UPDATE_DATE))
+    # loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    # loop.run_until_complete(bb_main(last_update_date=LAST_UPDATE_DATE))
     
     if mytimer.past_due:
         logging.info('The timer is past due!')
