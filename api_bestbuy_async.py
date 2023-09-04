@@ -233,8 +233,8 @@ async def api_bestbuy(init, session, url, batch_size, page_size, page, columns=N
 
             break # exit loop
     
-    # * if db is True and length of products table not 0, insert into database
-    if len(data["products"]):
+    # * create products object if response includes products.
+    if "products" in data:
 
         # * create dataframes from collected data
         try:
