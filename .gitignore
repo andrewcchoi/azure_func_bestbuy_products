@@ -131,3 +131,4 @@ local.settings.json
 
 .python_packages
 __azurite*
+__blob*
