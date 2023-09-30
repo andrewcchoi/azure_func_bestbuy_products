@@ -187,26 +187,80 @@ def test_function(mytimer: func.TimerRequest) -> None:
     logging.info('Python timer trigger function ran at %s', utc_timestamp)
 ```
 
+## changing python version
+
+### Valid linuxFxVersion values
+```powershell
+az functionapp list-runtimes --os linux --query "[].{stack:join(' ', [runtime, version]), LinuxFxVersion:linux_fx_version, SupportedFunctionsVersions:to_string(supported_functions_versions[])}" --output table
+```
+output
+```powershell
+Stack              LinuxFxVersion       SupportedFunctionsVersions
+-----------------  -------------------  ----------------------------
+dotnet-isolated 8  DOTNET-ISOLATED|8.0  ["4"]
+dotnet-isolated 7  DOTNET-ISOLATED|7.0  ["4"]
+dotnet-isolated 6  DOTNET-ISOLATED|6.0  ["4"]
+dotnet 6           DOTNET|6.0           ["4"]
+node 20            Node|20              ["4"]
+node 18            Node|18              ["4"]
+node 16            Node|16              ["4"]
+node 14            Node|14              ["4","3"]
+python 3.11        Python|3.11          ["4"]
+python 3.10        Python|3.10          ["4"]
+python 3.9         Python|3.9           ["4","3"]
+python 3.8         Python|3.8           ["4","3"]
+python 3.7         Python|3.7           ["4","3"]
+java 17.0          Java|17              ["4"]
+java 11.0          Java|11              ["4","3"]
+java 8.0           Java|8               ["4","3"]
+powershell 7.2     PowerShell|7.2       ["4"]
+custom                                  ["4","3"]
+```
+### view current runtime version
+```powershell
+az functionapp config show --name <function_app> \
+--resource-group <my_resource_group> --query 'linuxFxVersion' -o tsv
+```
+output
+```powershell
+PYTHON|3.8
+```
+
+### update runtime version ("Python|3.10")
+```powershell
+az functionapp config set --name <FUNCTION_APP> \
+--resource-group <RESOURCE_GROUP> \
+--linux-fx-version <"LINUX_FX_VERSION">
+```
+
 ## additional resources:
 
 1. [ms learn: azure function python developer guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Capplication-level&pivots=python-mode-decorators)
 
-2. [ms learn: azure function python developer guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Capplication-level&pivots=python-mode-decorators)
+1. [ms learn: azure function python developer guide](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Capplication-level&pivots=python-mode-decorators)
 
-3. [ms learn: add dev/test function solution](https://learn.microsoft.com/en-us/answers/questions/1203593/azure-functions-in-dev-prod-enviroment)
+1. [ms learn: add dev/test function solution](https://learn.microsoft.com/en-us/answers/questions/1203593/azure-functions-in-dev-prod-enviroment)
 
-4. [ms learn: add dev/test function solution](https://learn.microsoft.com/en-us/answers/questions/1203593/azure-functions-in-dev-prod-enviroment)
+1. [ms learn: add dev/test function solution](https://learn.microsoft.com/en-us/answers/questions/1203593/azure-functions-in-dev-prod-enviroment)
 
-5. [ms learn: function binding](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2%2Cin-process&pivots=programming-language-python)
+1. [ms learn: function binding](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2%2Cin-process&pivots=programming-language-python)
 
-6. [ms learn: manually run non-http triggers](https://learn.microsoft.com/en-us/azure/azure-functions/functions-manually-run-non-http)
+1. [ms learn: manually run non-http triggers](https://learn.microsoft.com/en-us/azure/azure-functions/functions-manually-run-non-http)
 
-7. [ms learn: develop locally](https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-local)
+1. [ms learn: develop locally](https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-local)
 
-8. [ms learn: azure functions run local](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Cnon-http-trigger%2Ccontainer-apps&pivots=programming-language-python#run-a-local-function)
+1. [ms learn: azure functions run local](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cisolated-process%2Cnode-v4%2Cpython-v2%2Cnon-http-trigger%2Ccontainer-apps&pivots=programming-language-python#run-a-local-function)
 
-9. [stackoverflow: debug azure functions locally](https://stackoverflow.com/questions/55063821/debug-azure-functions-locally/55067597)
+1. [ms learn: functions reference python](https://learn.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Capplication-level&pivots=python-mode-decorators)
 
-10. [stackoverflow: azure functions trigger timer trigger locally](https://stackoverflow.com/questions/47541981/azure-functions-trigger-timer-trigger-locally)
+1. [ms learn: how to pin a python version](https://learn.microsoft.com/en-us/azure/azure-functions/set-runtime-version?tabs=portal#manual-version-updates-on-linux)
 
-11. [stackoverflow: curl to powershell](https://stackoverflow.com/questions/71168528/curl-to-powershell-command)
+1. [ms learn: app service site settings](https://learn.microsoft.com/en-us/azure/azure-functions/functions-app-settings#app-service-site-settings)
+
+1. [stackoverflow: debug azure functions locally](https://stackoverflow.com/questions/55063821/debug-azure-functions-locally/55067597)
+
+1. [stackoverflow: azure functions trigger timer trigger locally](https://stackoverflow.com/questions/47541981/azure-functions-trigger-timer-trigger-locally)
+
+1. [stackoverflow: curl to powershell](https://stackoverflow.com/questions/71168528/curl-to-powershell-command)
+
+1. [stackoverflow: how to change python version of azure function](https://stackoverflow.com/questions/72000572/how-to-change-python-version-of-azure-function)
