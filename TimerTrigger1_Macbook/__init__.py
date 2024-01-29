@@ -105,7 +105,8 @@ def main(mytimer: func.TimerRequest) -> None:
             "columns":["salePrice", "name", "url", "addToCartUrl", "priceUpdateDate"],
             "detail_names":[],
             "offers":None
-        },"macbook": {
+        },
+        "macbook": {
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
             "subject": f'TimerTrigger1_Macbook - Best Buy Deals ({datetime.now()})',
             "columns":["sku", "name", "salePrice", "onSale", "url", "addToCartUrl"],
@@ -117,6 +118,20 @@ def main(mytimer: func.TimerRequest) -> None:
             "subject": f'TimerTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})',
             "columns":None,
             "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
+            "offers":[]
+        },
+        "television": {
+            "url":"https://api.bestbuy.com/v1/products(productTemplate in(Televisions,Digital_Signage_Displays_and_Players,Portable_TVs_and_Video)&screenSizeClassIn>39&salePrice<200&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
+            "subject": f'HttpTrigger1_Television - Best Buy Deals ({datetime.now()})',
+            "columns":None,
+            "detail_names":["Built-In Speakers", "Resolution", "Display Type", "Screen Size Class", "Screen Size", "Curved Screen"],
+            "offers":[]
+        },
+        "ps5 controller": {
+            "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5 - DualSense Wireless Controller&details.value=PlayStation 5&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
+            "subject": f'HttpTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
+            "columns":["color"],
+            "detail_names":None,
             "offers":[]
         }
     }
