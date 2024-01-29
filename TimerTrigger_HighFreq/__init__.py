@@ -77,14 +77,14 @@ def main(mytimer: func.TimerRequest) -> None:
     # Use the type alias for the outer dictionary
     queries: Dict[str, Query] = {
         # "nvidia": {
-        #     "url":f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&salePrice<1000&priceUpdateDate>{LAST_UPDATE_DATE}&orderable=Available&onlineAvailability=true&active=true&details.name=Advanced Graphics Rendering Technique*)",
+        #     "url":f"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&salePrice<1000&orderable=Available&onlineAvailability=true&active=true&details.name=Advanced Graphics Rendering Technique*&priceUpdateDate>{LAST_UPDATE_DATE})",
         #     "subject": f'!TimerTrigger_Nvidia_Laptop - Best Buy Deals ({datetime.now()})',
         #     "columns":None,
         #     "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
         #     "offers":[]
         # },
         "television": {
-            "url":"https://api.bestbuy.com/v1/products(productTemplate in(Televisions,Digital_Signage_Displays_and_Players,Portable_TVs_and_Video)&screenSizeClassIn>39&salePrice<200&details.value!=Full HD&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
+            "url":"https://api.bestbuy.com/v1/products(productTemplate in(Televisions,Digital_Signage_Displays_and_Players,Portable_TVs_and_Video)&screenSizeClassIn>39&salePrice<200&details.value!=Full HD&onSale=true&orderable=Available&onlineAvailability=true&active=true&priceUpdateDate>{LAST_UPDATE_DATE})",
             "subject": f'!TimerTrigger_Television - Best Buy Deals ({datetime.now()})',
             "columns":None,
             "detail_names":["Built-In Speakers", "Resolution", "Display Type", "Screen Size Class", "Screen Size", "Curved Screen"],
