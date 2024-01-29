@@ -122,14 +122,14 @@ def main(mytimer: func.TimerRequest) -> None:
         },
         "television": {
             "url":"https://api.bestbuy.com/v1/products(productTemplate in(Televisions,Digital_Signage_Displays_and_Players,Portable_TVs_and_Video)&screenSizeClassIn>39&salePrice<200&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
-            "subject": f'HttpTrigger1_Television - Best Buy Deals ({datetime.now()})',
+            "subject": f'TimerTrigger1_Television - Best Buy Deals ({datetime.now()})',
             "columns":None,
             "detail_names":["Built-In Speakers", "Resolution", "Display Type", "Screen Size Class", "Screen Size", "Curved Screen"],
             "offers":[]
         },
         "ps5 controller": {
             "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5 - DualSense Wireless Controller&details.value=PlayStation 5&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
-            "subject": f'HttpTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
+            "subject": f'TimerTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
             "columns":["color"],
             "detail_names":None,
             "offers":[]
