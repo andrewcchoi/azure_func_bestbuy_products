@@ -121,7 +121,7 @@ def main(mytimer: func.TimerRequest) -> None:
             "offers":[]
         },
         "television": {
-            "url":"https://api.bestbuy.com/v1/products(productTemplate in(Televisions,Digital_Signage_Displays_and_Players,Portable_TVs_and_Video)&screenSizeClassIn>39&salePrice<200&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
+            "url":"https://api.bestbuy.com/v1/products(productTemplate in(Televisions,Digital_Signage_Displays_and_Players,Portable_TVs_and_Video)&screenSizeClassIn>39&salePrice<999&details.value!=Full HD&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
             "subject": f'TimerTrigger1_Television - Best Buy Deals ({datetime.now()})',
             "columns":None,
             "detail_names":["Built-In Speakers", "Resolution", "Display Type", "Screen Size Class", "Screen Size", "Curved Screen"],
