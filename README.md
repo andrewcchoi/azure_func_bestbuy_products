@@ -3,6 +3,8 @@
 
 Connects to best buy api.
 
+[developer api document](https://developer.bestbuy.com/)
+
 ## progression:
 
 1. use regular request package and save local files
@@ -137,6 +139,7 @@ curl --get http://localhost:7071/api/MyHttpTrigger?name=Azure%20Rocks
 ```
 
 non-http trigger request example: 
+[documentation](https://learn.microsoft.com/en-us/azure/azure-functions/functions-manually-run-non-http?tabs=azure-portal)
 
 ```cmd
 curl --request POST -H "Content-Type:application/json" --data "{'input':'sample queue data'}" http://localhost:7071/admin/functions/QueueTrigger -v
