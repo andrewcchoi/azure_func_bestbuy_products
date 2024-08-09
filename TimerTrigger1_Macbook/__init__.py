@@ -99,21 +99,21 @@ def main(mytimer: func.TimerRequest) -> None:
 
     # Use the type alias for the outer dictionary
     queries: Dict[str, inner_queries] = {
-        "discount": {
-            "url":f"https://api.bestbuy.com/v1/products(priceUpdateDate>{LAST_UPDATE_DATE}&onSale=true&active=true&percentSavings>50&salePrice<>60696.99)",
-            "subject": f'TimerTrigger1_Discount>50% - Best Buy Deals ({datetime.now()})',
+        "purple": {
+            "url":f"https://api.bestbuy.com/v1/products(onSale=true&active=true&(color=purple*|color=lilac*|color=lavender*|color=violet*|color=amethyst*|color=plum*))",
+            "subject": f'TimerTrigger1_Purple - Best Buy Deals ({datetime.now()})',
             "columns":["salePrice", "name", "url", "addToCartUrl", "priceUpdateDate"],
             "detail_names":[],
             "offers":None
         },
         "macbook": {
-            "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
+            "url":"https://api.bestbuy.com/v1/products(name=macbook pro*&categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true&preowned=false&subclassId=7835)",
             "subject": f'TimerTrigger1_Macbook - Best Buy Deals ({datetime.now()})',
             "columns":["sku", "name", "salePrice", "onSale", "url", "addToCartUrl"],
             "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
             "offers":[]
         },
-        "nvidia": {
+        "nvidia": {# details.name=Advanced Graphics Rendering Technique*
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
             "subject": f'TimerTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})',
             "columns":None,
@@ -128,12 +128,12 @@ def main(mytimer: func.TimerRequest) -> None:
             "offers":[]
         },
         "ps5 controller": {
-            "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5 - DualSense Wireless Controller&details.value=PlayStation 5&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
+            "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5*&details.value=PlayStation 5&orderable=Available&onlineAvailability=true&active=true&onSale=true)",
             "subject": f'TimerTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
             "columns":["color"],
             "detail_names":None,
             "offers":[]
-        }
+        },
     }
     # macbook and nvidia pcs deals
     for query in queries.keys():

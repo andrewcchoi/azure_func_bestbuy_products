@@ -148,16 +148,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     # dictionary with url queries and email subject
     queries: Dict[str, inner_query] = {
-        "discounts": {
+        "discount": {
             "url":f"https://api.bestbuy.com/v1/products(priceUpdateDate>{LAST_UPDATE_DATE}&onSale=true&active=true&percentSavings>50&salePrice<>60696.99)",
-            "subject": f'HttpTrigger1_Discounts - Best Buy Deals ({datetime.now()})',
+            "subject": f'TimerTrigger1_Discount>50% - Best Buy Deals ({datetime.now()})',
             "columns":["salePrice", "name", "url", "addToCartUrl", "priceUpdateDate"],
             "detail_names":[],
             "offers":None
         },
         "ps5 controller": {
-            "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5 - DualSense Wireless Controller&details.value=PlayStation 5&onSale=true&orderable=Available&onlineAvailability=true&active=true)",
-            "subject": f'HttpTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
+            "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5*&details.value=PlayStation 5&orderable=Available&onlineAvailability=true&active=true&onSale=true)",
+            "subject": f'TimerTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
             "columns":["color"],
             "detail_names":None,
             "offers":[]
@@ -169,16 +169,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             "detail_names":["Built-In Speakers", "Resolution", "Display Type", "Screen Size Class", "Screen Size", "Curved Screen"],
             "offers":[]
         },
-        "macbooks": {
-            "url":"https://api.bestbuy.com/v1/products(categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true)",
-            "subject": f'HttpTrigger1_Macbooks - Best Buy Deals ({datetime.now()})',
+        "macbook": {
+            "url":"https://api.bestbuy.com/v1/products(name=macbook pro*&categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true&preowned=false&subclassId=7835)",
+            "subject": f'TimerTrigger1_Macbook - Best Buy Deals ({datetime.now()})',
             "columns":["sku", "name", "salePrice", "onSale", "url", "addToCartUrl"],
             "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
-            "offers":None
+            "offers":[]
         },
-        "laptop": { # details.name=Advanced Graphics Rendering Technique*
+        "nvidia": {# details.name=Advanced Graphics Rendering Technique*
             "url":"https://api.bestbuy.com/v1/products(categoryPath.name=laptop*&onSale=true&orderable=Available&onlineAvailability=true&active=true&details.value=nvidia&details.value!=1650*&details.value!=1660*)",
-            "subject": f'HttpTrigger1_Nvidia_Laptops - Best Buy Deals ({datetime.now()})',
+            "subject": f'TimerTrigger1_Nvidia_Pc - Best Buy Deals ({datetime.now()})',
             "columns":None,
             "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
             "offers":[]
@@ -189,7 +189,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             "columns":None,
             "detail_names":["Advanced Graphics Rendering Technique(s)", "GPU Video Memory (RAM)", "Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
             "offers":[]
-        }
+        },
+        "purple": {
+            "url":f"https://api.bestbuy.com/v1/products(onSale=true&active=true&(color=purple*|color=lilac*|color=lavender*|color=violet*|color=amethyst*|color=plum*))",
+            "subject": f'TimerTrigger1_Purple - Best Buy Deals ({datetime.now()})',
+            "columns":["salePrice", "name", "url", "addToCartUrl", "priceUpdateDate"],
+            "detail_names":[],
+            "offers":None
+        },
     }
 
     http_response: str = f"Hello {name}!</br>"
