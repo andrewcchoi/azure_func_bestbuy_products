@@ -107,7 +107,7 @@ def main(mytimer: func.TimerRequest) -> None:
             "offers":None
         },
         "macbook": {
-            "url":"https://api.bestbuy.com/v1/products(name=macbook pro*&categoryPath.name=macbook*&details.value!=intel*&orderable=Available&onlineAvailability=true&onSale=true&active=true&preowned=false&subclassId=7835)",
+            "url":"https://api.bestbuy.com/v1/products(name=macbook pro*&categoryPath.name=macbook*&details.value!=intel&orderable=Available&onlineAvailability=true&onSale=true&active=true&preowned=false&subclassId=7835)",
             "subject": f'TimerTrigger1_Macbook - Best Buy Deals ({datetime.now()})',
             "columns":["sku", "name", "salePrice", "onSale", "url", "addToCartUrl"],
             "detail_names":["Graphics", "Processor Model", "System Memory (RAM)", "Solid State Drive Capacity"],
@@ -130,8 +130,8 @@ def main(mytimer: func.TimerRequest) -> None:
         "ps5 controller": {
             "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5*&details.value=PlayStation 5&orderable=Available&onlineAvailability=true&active=true&onSale=true)",
             "subject": f'TimerTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
-            "columns":["color"],
-            "detail_names":None,
+            "columns":["salePrice", "name", "color"],
+            "detail_names":[],
             "offers":[]
         },
     }
