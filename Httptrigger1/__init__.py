@@ -155,10 +155,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             "detail_names":[],
             "offers":None
         },
+        "headphones": {
+            "url":f"https://api.bestbuy.com/v1/products(productTemplate=Headphones_and_Headsets&class=HEADPHONES&subclassId=410&details.value=noise cancel*&orderable=Available&onlineAvailability=true&active=true&onSale=true)",
+            "subject": f'HttpTrigger1_Headphones_Noise_Cancelling - Best Buy Deals ({datetime.now()})',
+            "columns":None,
+            "detail_names":["Headphone Fit", "Microphone Features", "Sound Isolating", "Built-In Microphone", "Noise Cancelling (Active)"],
+            "offers":[]
+        },
         "ps5 controller": {
             "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5*&details.value=PlayStation 5&orderable=Available&onlineAvailability=true&active=true&onSale=true)",
             "subject": f'TimerTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
-            "columns":["salePrice", "name", "color"],
+            "columns":["salePrice", "name", "color", "url", "addToCartUrl"],
             "detail_names":[],
             "offers":[]
         },
