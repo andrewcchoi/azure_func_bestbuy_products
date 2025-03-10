@@ -100,7 +100,7 @@ def main(mytimer: func.TimerRequest) -> None:
     # Use the type alias for the outer dictionary
     queries: Dict[str, inner_queries] = {
         "purple": {
-            "url":f"https://api.bestbuy.com/v1/products(onSale=true&active=true&(color=purple*|color=lilac*|color=lavender*|color=violet*|color=amethyst*|color=plum*))",
+            "url":f"https://api.bestbuy.com/v1/products(onSale=true&condtion=new&active=true&(color=purple*|color=lilac*|color=lavender*|color=violet*|color=amethyst*|color=plum*))",
             "subject": f'TimerTrigger1_Purple - Best Buy Deals ({datetime.now()})',
             "columns":["salePrice", "name", "url", "addToCartUrl", "priceUpdateDate"],
             "detail_names":[],
