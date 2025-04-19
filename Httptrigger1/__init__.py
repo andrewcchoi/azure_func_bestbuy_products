@@ -8,18 +8,6 @@ from dateutil import tz
 from api_bestbuy_async import bb_main
 from .config import get_queries
 
-async def fetch_products(url:str,email:bool=False,**kwargs) -> tuple[str, tuple]:
-    """Fetch products from Best Buy API"""
-    result = await bb_main(url=url,email=email,**kwargs)
-    html, shape = result
-    
-    # Add HTML links
-    html = (html.replace('http', '<a href="http')
-               .replace('/pdp', '/pdp" target="_blank">urlLink</a>')
-               .replace('/cart', '/cart" target="_blank">addToCartUrl</a>'))
-    
-    return html, shape
-
 def main(req: func.HttpRequest) -> func.HttpResponse:
     """HTTP trigger for Best Buy product search"""
     fellerbuncher.info('ACTION!'.center(20, "*"))
