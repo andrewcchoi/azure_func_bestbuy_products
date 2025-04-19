@@ -16,7 +16,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     name = req.params.get('name', 'stranger')
     
     # Get Pacific time
-    utc = datetime.now(timezone.utc) - timedelta(minutes=361)
+    utc = datetime.now(timezone.utc) - timedelta(minutes=1441)
     local = utc.astimezone(tz.gettz('US/Pacific'))
     LAST_UPDATE_DATE = local.strftime('%Y-%m-%dT%H:%M:%S')
     
