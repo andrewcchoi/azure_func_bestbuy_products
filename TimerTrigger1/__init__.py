@@ -1,10 +1,7 @@
-import os
-import datetime
 import logging
-import asyncio
 
 from dateutil import tz
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import azure.functions as func
 
@@ -18,7 +15,7 @@ def main(mytimer: func.TimerRequest) -> None:
     from_zone = tz.gettz('UTC')
     to_zone = tz.gettz('US/Pacific')
 
-    utc = datetime.utcnow() - timedelta(minutes=1441) # * utc time 1_441 minutes (24hrs and 1 min) before
+    utc = datetime.now(timezone.utc) - timedelta(minutes=1441) # * utc time 1_441 minutes (24hrs and 1 min) before
     utc_timestamp = utc.replace(tzinfo=from_zone) # * explicitly apply utc timezone
     local = utc_timestamp.astimezone(to_zone) # * convert to local time
 
@@ -32,7 +29,7 @@ def main(mytimer: func.TimerRequest) -> None:
     if mytimer.past_due:
         logging.info('The timer is past due!')
 
-    logging.info('Python timer trigger function ran at %s', utc_timestamp)
+    logging.info('Python timer trigger function ran at %s', LAST_UPDATE_DATE)
 
 '''
 resources: 
