@@ -8,14 +8,15 @@ Connects to best buy api.
 ## progression:
 
 1. use regular request package and save local files
-2. add sqlite database integration
-3. experiment with azure databases (cosmosdb and sql server db)
-4. convert request functions to asyncio functions
-5. combine aiohttp with asyncio
-6. add email notification when complete
-7. async requests
-8. publish azure function app on http trigger
-9. publish azure function on timer trigger
+1. add sqlite database integration
+1. experiment with azure databases (cosmosdb and sql server db)
+1. convert request functions to asyncio functions
+1. combine aiohttp with asyncio
+1. add email notification when complete
+1. async requests
+1. publish azure function app on http trigger
+1. publish azure function on timer trigger
+1. simplified code with github copilot claude 2.5 sonnet
 
 ## start local function with vscode:
 
@@ -26,17 +27,19 @@ resource: [quickstart: python function in azure with vscode](https://learn.micro
 ### configure environment
 
 * An Azure account with an active subscription. Create an account for free.
-* Python version 3.10.
-* Visual Studio Code on one of the supported platforms.
-* The Python extension for Visual Studio Code.
-* The Azure Functions extension for Visual Studio Code, version 1.8.1 or later.
+* Python version 3.11.
+* Developed on Visual Studio Code on one of the supported platforms.
+* Python extension for Visual Studio Code.
+* Azure Functions extension for Visual Studio Code, version 1.17.1.
+* Azure Tools extension for Visual Studio Code, version 1.4.0.
 * The Azurite V3 extension local storage emulator. While you can also use an actual Azure storage account, this article assumes you're using the Azurite emulator.
+* Developed on Windows operating system. Deployed on Linux operating system.
 
 ### configure emulator
 
 resource: [ms learn: start the emulator](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-python?pivots=python-mode-decorators#start-the-emulator)
 
-1. In Visual Studio Code, press F1 to open the command palette. In the command palette, search for and select Azurite: Start.
+1. In Visual Studio Code, press F1 (ctrl+shift+p) to open the command palette. In the command palette, search for and select Azurite: Start.
 
 1. Check the bottom bar and verify that Azurite emulation services are running. If so, you can now run your function locally.
 
@@ -44,7 +47,7 @@ resource: [ms learn: start the emulator](https://learn.microsoft.com/en-us/azure
 
 Visual Studio Code integrates with Azure Functions Core tools to let you run this project on your local development computer before you publish to Azure.
 
-1. To start the function locally, press `F5` or the Run and Debug icon in the left-hand side Activity bar. The Terminal panel displays the Output from Core Tools. Your app starts in the Terminal panel. You can see the URL endpoint of your HTTP-triggered function running locally.
+1. To start the function locally, press `F5` or the `Run and Debug` icon in the left-hand side Activity bar or run in command line using `.venv\Scripts\activate ; func host start --port xxxx`. The Terminal panel displays the Output from Core Tools. Your app starts in the Terminal panel. You can see the URL endpoint of your HTTP-triggered function running locally.
 
     1. If you have trouble running on Windows, make sure that the default terminal for Visual Studio Code isn't set to WSL Bash.
 
@@ -200,24 +203,28 @@ output
 ```powershell
 Stack              LinuxFxVersion       SupportedFunctionsVersions
 -----------------  -------------------  ----------------------------
+dotnet-isolated 9  DOTNET-ISOLATED|9.0  ["4"]
 dotnet-isolated 8  DOTNET-ISOLATED|8.0  ["4"]
 dotnet-isolated 7  DOTNET-ISOLATED|7.0  ["4"]
 dotnet-isolated 6  DOTNET-ISOLATED|6.0  ["4"]
+dotnet 8           DOTNET|8.0           ["4"]
 dotnet 6           DOTNET|6.0           ["4"]
+node 22            Node|22              ["4"]
 node 20            Node|20              ["4"]
 node 18            Node|18              ["4"]
-node 16            Node|16              ["4"]
-node 14            Node|14              ["4","3"]
+python 3.12        Python|3.12          ["4"]
 python 3.11        Python|3.11          ["4"]
 python 3.10        Python|3.10          ["4"]
-python 3.9         Python|3.9           ["4","3"]
-python 3.8         Python|3.8           ["4","3"]
-python 3.7         Python|3.7           ["4","3"]
+python 3.9         Python|3.9           ["4"]
+python 3.8         Python|3.8           ["4"]
+python 3.7         Python|3.7           ["4"]
+java 21.0          Java|21              ["4"]
 java 17.0          Java|17              ["4"]
-java 11.0          Java|11              ["4","3"]
-java 8.0           Java|8               ["4","3"]
+java 11.0          Java|11              ["4"]
+java 8.0           Java|8               ["4"]
+powershell 7.4     PowerShell|7.4       ["4"]
 powershell 7.2     PowerShell|7.2       ["4"]
-custom                                  ["4","3"]
+custom                                  ["4"]
 ```
 ### view current runtime version
 ```powershell
@@ -226,10 +233,10 @@ az functionapp config show --name <function_app> \
 ```
 output
 ```powershell
-PYTHON|3.8
+PYTHON|3.10
 ```
 
-### update runtime version ("Python|3.10")
+### update runtime version ("Python|3.11")
 ```powershell
 az functionapp config set --name <FUNCTION_APP> \
 --resource-group <RESOURCE_GROUP> \
