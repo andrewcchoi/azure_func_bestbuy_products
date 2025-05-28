@@ -109,7 +109,7 @@ async def make_api_request(session, url, params):
     delay = round(uniform(0, 2), 1)  # Random delay between 0-2 seconds
     await asyncio.sleep(delay)
     
-    async with session.get(url, params=params) as response:
+    async with session.get(url, params=params, ssl=False) as response:
         if response.status != 200:
             lumberjack.error(f"API request failed with status {response.status}")
             return None
