@@ -22,7 +22,7 @@ def get_queries(LAST_UPDATE_DATE: str) -> Dict[str, Dict[str, Any]]:
             "offers":[]
         },
         "ps5 controller": {
-            "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony&albumTitle=PlayStation 5*&details.value=PlayStation 5&orderable=Available&onlineAvailability=true&active=true&onSale=true)",
+            "url":"https://api.bestbuy.com/v1/products(productTemplate=Gaming_Controllers&manufacturer=Sony*&albumTitle=DualSense Wireless Controller*&orderable=Available&onlineAvailability=true&active=true&onSale=true)",
             "subject": f'HttpTrigger1_Playstation 5 Controller - Best Buy Deals ({datetime.now()})',
             "columns":["salePrice", "name", "color", "url", "addToCartUrl"],
             "detail_names":[],
