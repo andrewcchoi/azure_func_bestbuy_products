@@ -9,7 +9,7 @@ def get_queries(LAST_UPDATE_DATE: str) -> Dict[str, Dict[str, Any]]:
     return {
         "airpods": {
             "url":"https://api.bestbuy.com/v1/products((search=airpods)&manufacturer=apple&(categoryPath.id=abcat0204000)&orderable=Available&onlineAvailability=true&active=true&onSale=true&protectionPlanTerm!=gsr&priceUpdateDate>{LAST_UPDATE_DATE})",
-            "subject": f'HttpTrigger1_Airpods - Best Buy Deals ({datetime.now()})',
+            "subject": f'!TimerTrigger_Airpods - Best Buy Deals ({datetime.now()})',
             "columns":None,
             "detail_names":["Headphone Fit", "Microphone Features", "Sound Isolating", "Built-In Microphone", "Noise Cancelling (Active)", "Battery Life"],
             "offers":[]
@@ -30,7 +30,7 @@ def get_queries(LAST_UPDATE_DATE: str) -> Dict[str, Dict[str, Any]]:
         # },
         # "headphones": {
         #     "url":"https://api.bestbuy.com/v1/products(productTemplate=Headphones_and_Headsets&class=HEADPHONES&subclassId=410&details.value=noise cancel*&orderable=Available&onlineAvailability=true&active=true&onSale=true&priceUpdateDate>{LAST_UPDATE_DATE})",
-        #     "subject": f'HttpTrigger1_Headphones_Noise_Cancelling - Best Buy Deals ({datetime.now()})',
+        #     "subject": f'!TimerTrigger_Headphones_Noise_Cancelling - Best Buy Deals ({datetime.now()})',
         #     "columns":None,
         #     "detail_names":["Headphone Fit", "Microphone Features", "Sound Isolating", "Built-In Microphone", "Noise Cancelling (Active)", "Battery Life"],
         #     "offers":[]
