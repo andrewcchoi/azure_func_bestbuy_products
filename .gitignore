@@ -136,3 +136,4 @@ __blob*
 # custom
 .dev
 *.ipynb
+test/
